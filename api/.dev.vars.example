@@ -1,0 +1,4 @@
+JWT_SECRET=troque-por-uma-string-longa-e-aleatoria
+
+DEV_OWNER_EMAIL=prof@example.com
+DEV_OWNER_PASSWORD=teste-local-123

@@ -1,0 +1,20 @@
+{
+  "name": "api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8787 --persist-to ../.wrangler/state",
+    "db:migrate:local": "wrangler d1 migrations apply logic-master-db --local --persist-to ../.wrangler/state",
+    "db:migrate:remote": "wrangler d1 migrations apply logic-master-db --remote",
+    "deploy:cf": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.13.21"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261124.1",
+    "typescript": "^5.9.0",
+    "wrangler": "^4.168.0"
+  }
+}

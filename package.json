@@ -1,0 +1,23 @@
+{
+  "name": "logic-master",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Logic Master — Recurso Educacional Digital (quiz) de Lógica Computacional em Cloudflare Workers (Hono + React + D1)",
+  "license": "MIT",
+  "packageManager": "pnpm@12.23.0",
+  "scripts": {
+    "db:migrate:local": "pnpm --filter api db:migrate:local",
+    "db:migrate:remote": "pnpm --filter api db:migrate:remote",
+    "db:reset:local": "node api/scripts/reset-local.mjs",
+    "professor": "node api/scripts/owner.mjs",
+    "dev:api": "pnpm --filter api dev",
+    "dev:web": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "typecheck": "pnpm -r typecheck",
+    "preview": "pnpm build && wrangler dev -c web/wrangler.jsonc -c api/wrangler.jsonc --persist-to .wrangler/state",
+    "deploy": "pnpm --filter api deploy:cf && pnpm --filter web deploy:cf"
+  },
+  "devDependencies": {
+    "wrangler": "^4.168.0"
+  }
+}
