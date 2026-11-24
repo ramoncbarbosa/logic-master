@@ -3,6 +3,7 @@ import { geoDistance, geoGraticule10, geoOrthographic, geoPath } from 'd3-geo'
 import { feature, mesh } from 'topojson-client'
 import type { GeometryCollection, Topology } from 'topojson-specification'
 import worldData from 'world-atlas/countries-110m.json'
+import { useTranslation } from 'react-i18next'
 import { MapPin } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -23,12 +24,14 @@ const GRATICULE = geoGraticule10()
 const SIZE = 400
 const R = SIZE / 2 - 8
 const clampTilt = (v: number) => Math.max(-60, Math.min(60, v))
-const label = (l: GlobeLocation) => [l.city, l.region, l.country].filter(Boolean).join(', ') || 'Local desconhecido'
+const placeName = (l: GlobeLocation) => [l.city, l.region, l.country].filter(Boolean).join(', ')
 const delta = (from: number, to: number) => ((((to - from) % 360) + 540) % 360) - 180
 const RESUME_AFTER_MS = 4000
 const SPIN_SPEED = 0.12
 
 export default function LocationGlobe({ locations }: { locations: GlobeLocation[] }) {
+  const { t } = useTranslation()
+  const label = (l: GlobeLocation) => placeName(l) || t('globe.unknown')
   const sphereRef = useRef<SVGPathElement>(null)
   const graticuleRef = useRef<SVGPathElement>(null)
   const landRef = useRef<SVGPathElement>(null)
@@ -166,7 +169,7 @@ export default function LocationGlobe({ locations }: { locations: GlobeLocation[
     view.current.target = moves[e.key]
   }
 
-  if (!locations.length) return <p className="text-sm text-muted-foreground">Sem dados de localização ainda.</p>
+  if (!locations.length) return <p className="text-sm text-muted-foreground">{t('globe.empty')}</p>
 
   return (
     <div className="grid items-center gap-6 md:grid-cols-[minmax(0,1fr)_16rem]">
@@ -175,7 +178,7 @@ export default function LocationGlobe({ locations }: { locations: GlobeLocation[
         className="mx-auto w-full max-w-[26rem] cursor-grab touch-none select-none outline-none focus-visible:rounded-full focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
         role="img"
         tabIndex={0}
-        aria-label={`Globo terrestre com ${locations.length} localizações de participantes. Use as setas para girar. A lista ao lado detalha cada local.`}
+        aria-label={t('globe.aria', { count: locations.length })}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -214,7 +217,7 @@ export default function LocationGlobe({ locations }: { locations: GlobeLocation[
           return (
             <g key={`${l.lat},${l.lon}`} ref={(el) => void (markerRefs.current[i] = el)} style={{ display: 'none' }}>
               <g className="transition-opacity duration-300" opacity={dimmed ? 0.35 : 1}>
-              <title>{`${label(l)}: ${l.attempts} tentativa${l.attempts === 1 ? '' : 's'}`}</title>
+              <title>{`${label(l)}: ${t('globe.attempts', { count: l.attempts })}`}</title>
               <circle r={r * 2.2} className="globe-pulse fill-primary/30" />
               <g transform={`translate(0 ${-r * 0.2}) scale(${isActive ? 1.35 : 1})`}>
                 <path
@@ -235,7 +238,7 @@ export default function LocationGlobe({ locations }: { locations: GlobeLocation[
                   paintOrder="stroke"
                   strokeLinejoin="round"
                 >
-                  {l.city ?? l.country ?? 'Local'} · {l.attempts}
+                  {l.city ?? l.country ?? t('globe.place')} · {l.attempts}
                 </text>
               )}
             </g>
@@ -245,8 +248,8 @@ export default function LocationGlobe({ locations }: { locations: GlobeLocation[
 
       <div className="space-y-2">
         <p className="text-xs text-muted-foreground">
-          {total} tentativa{total === 1 ? '' : 's'} em {locations.length} local{locations.length === 1 ? '' : 'is'} ·{' '}
-          {active === null ? 'clique em um local para destacá-lo' : 'clique de novo para soltar'}
+          {t('globe.summary', { attempts: t('globe.attempts', { count: total }), places: t('globe.places', { count: locations.length }) })} ·{' '}
+          {active === null ? t('globe.hintSelect') : t('globe.hintRelease')}
         </p>
         <ul className="max-h-80 space-y-1 overflow-y-auto pr-1">
           {locations.map((l, i) => (

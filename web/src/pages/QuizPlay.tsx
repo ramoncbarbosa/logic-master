@@ -1,25 +1,38 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import {
   ArrowRight,
   CheckCircle2,
-  Clock,
   CircleHelp,
+  Clock,
   Lightbulb,
   ListChecks,
   Play,
   RotateCcw,
   Square,
   Target,
+  Trophy,
   Volume2,
   XCircle,
 } from 'lucide-react'
-import { api, ApiError, type AnswerResult, type FinishResult, type PublicConfig, type PublicQuiz } from '@/lib/api'
+import {
+  api,
+  ApiError,
+  type AnswerResult,
+  type FinishResult,
+  type PublicConfig,
+  type PublicQuiz,
+  type Ranking,
+} from '@/lib/api'
+import { languageTag } from '@/i18n'
+import { formatDuration } from '@/lib/format'
 import { playFeedback, speak, speechSupported, stopSpeaking, toEmbedUrl } from '@/lib/media'
 import { usePreferences } from '@/lib/preferences'
 import { runTour, runTourOnce } from '@/lib/tour'
+import { useDocumentTitle } from '@/lib/use-document-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -30,6 +43,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { LogoMark } from '@/components/Layout'
 import ConsentText from '@/components/ConsentText'
+import RankingTable from '@/components/RankingTable'
 import { cn } from '@/lib/utils'
 
 type Phase = 'intro' | 'ready' | 'playing' | 'result'
@@ -47,6 +61,7 @@ const phaseMotion = {
 
 export default function QuizPlay() {
   const { slug = '' } = useParams()
+  const { i18n } = useTranslation()
   const [quiz, setQuiz] = useState<PublicQuiz | null>(null)
   const [config, setConfig] = useState<PublicConfig | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -56,17 +71,17 @@ export default function QuizPlay() {
   const [index, setIndex] = useState(0)
   const [reviewed, setReviewed] = useState<Reviewed[]>([])
   const [final, setFinal] = useState<FinishResult | null>(null)
+  useDocumentTitle(quiz?.title)
 
   useEffect(() => {
     Promise.all([api.getQuiz(slug), api.config()])
       .then(([q, c]) => {
         setQuiz(q)
         setConfig(c)
-        document.title = `${q.title} — Logic Master`
       })
       .catch((e) => setError(e.message))
     return stopSpeaking
-  }, [slug])
+  }, [slug, i18n.language])
 
   const goTo = (p: Phase) => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -137,9 +152,9 @@ export default function QuizPlay() {
         </motion.div>
       )}
 
-      {phase === 'result' && final && (
+      {phase === 'result' && final && attemptId && (
         <motion.div key="result" {...phaseMotion} className="mx-auto max-w-3xl">
-          <Result quiz={quiz} final={final} reviewed={reviewed} onRestart={restart} />
+          <Result quiz={quiz} final={final} attemptId={attemptId} reviewed={reviewed} onRestart={restart} />
         </motion.div>
       )}
     </AnimatePresence>
@@ -147,6 +162,7 @@ export default function QuizPlay() {
 }
 
 function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConfig; onStart: (attemptId: string, name: string) => void }) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [consent, setConsent] = useState(false)
@@ -154,22 +170,22 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
   const [formError, setFormError] = useState<string | null>(null)
   const embed = toEmbedUrl(quiz.videoUrl)
   const domains = config.allowedEmailDomains
+  const domainList = domains.map((d) => `@${d}`).join(', ')
   const concepts = useMemo(() => [...new Set(quiz.questions.map((q) => q.concept).filter(Boolean))], [quiz])
   const minutes = Math.max(1, Math.round((quiz.questions.length * 45) / 60))
 
   useEffect(() => runTourOnce('intro', 900), [])
 
-  const emailOk = useMemo(() => {
-    const domain = /^[a-z0-9._%+-]+@([a-z0-9.-]+)$/.exec(email.trim().toLowerCase())?.[1]
-    return !!domain && (domains.length === 0 || domains.includes(domain))
-  }, [email, domains])
+  const emailDomain = /^[^\s@]+@([^\s@]+\.[^\s@]+)$/.exec(email.trim().toLowerCase())?.[1]
+  const emailOk = !!emailDomain && (domains.length === 0 || domains.includes(emailDomain))
 
   async function submit(ev: FormEvent) {
     ev.preventDefault()
     setFormError(null)
-    if (!name.trim()) return setFormError('Informe seu nome.')
-    if (!emailOk) return setFormError(`Use seu e-mail institucional (${domains.map((d) => '@' + d).join(' ou ')}).`)
-    if (!consent) return setFormError('É necessário concordar com a coleta de dados para participar.')
+    if (!name.trim()) return setFormError(t('intro.errName'))
+    if (!emailDomain) return setFormError(t('intro.errEmail'))
+    if (!emailOk) return setFormError(t('intro.errEmailDomain', { domains: domainList }))
+    if (!consent) return setFormError(t('intro.errConsent'))
     setBusy(true)
     try {
       const { attemptId } = await api.startAttempt(quiz.slug, {
@@ -180,29 +196,36 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
       })
       onStart(attemptId, name.trim())
     } catch (e) {
-      setFormError(e instanceof ApiError ? e.message : 'Falha de conexão. Tente novamente.')
+      setFormError(e instanceof ApiError ? e.message : t('common.connectionError'))
       setBusy(false)
     }
   }
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_minmax(0,26rem)] lg:items-start">
-      <section id="tour-summary" className="space-y-6 lg:sticky lg:top-24">
+      <section id="tour-summary" className="min-w-0 space-y-6 lg:sticky lg:top-24">
         <div className="space-y-3">
-          <Button variant="ghost" size="sm" className="-ml-3 text-muted-foreground" onClick={() => runTour('intro')}>
-            <CircleHelp aria-hidden /> Como funciona?
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="ghost" size="sm" className="-ml-3 text-muted-foreground" onClick={() => runTour('intro')}>
+              <CircleHelp aria-hidden /> {t('intro.howItWorks')}
+            </Button>
+            <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
+              <Link to={`/quiz/${quiz.slug}/ranking`}>
+                <Trophy aria-hidden /> {t('intro.viewRanking')}
+              </Link>
+            </Button>
+          </div>
           <h1 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">{quiz.title}</h1>
-          {quiz.description && <p className="text-lg text-pretty text-muted-foreground">{quiz.description}</p>}
+          {quiz.description && <p className="text-base text-pretty text-muted-foreground sm:text-lg">{quiz.description}</p>}
         </div>
 
-        <dl className="grid grid-cols-3 gap-3">
+        <dl className="grid grid-cols-3 gap-2 sm:gap-3">
           {[
-            { icon: ListChecks, label: 'Questões', value: quiz.questions.length },
-            { icon: Clock, label: 'Duração', value: `~${minutes} min` },
-            { icon: Target, label: 'Conceitos', value: concepts.length },
+            { icon: ListChecks, label: t('intro.statQuestions'), value: quiz.questions.length },
+            { icon: Clock, label: t('intro.statDuration'), value: t('common.minutes', { count: minutes }) },
+            { icon: Target, label: t('intro.statConcepts'), value: concepts.length },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl border bg-card/80 p-4 shadow-sm">
+            <div key={s.label} className="rounded-xl border bg-card/80 p-3 shadow-sm sm:p-4">
               <s.icon className="mb-2 size-5 text-primary" aria-hidden />
               <dt className="text-xs text-muted-foreground">{s.label}</dt>
               <dd className="text-lg font-semibold tabular-nums">{s.value}</dd>
@@ -212,7 +235,7 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
 
         {concepts.length > 0 && (
           <div className="space-y-2">
-            <p className="text-sm font-medium">O que você vai praticar</p>
+            <p className="text-sm font-medium">{t('intro.practice')}</p>
             <ul className="flex flex-wrap gap-1.5">
               {concepts.map((c) => (
                 <li key={c}>
@@ -229,7 +252,7 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
           <div className="aspect-video overflow-hidden rounded-xl border shadow-sm">
             <iframe
               src={embed}
-              title={`Vídeo de apoio: ${quiz.title}`}
+              title={t('intro.video', { title: quiz.title })}
               className="size-full"
               allow="accelerometer; encrypted-media; picture-in-picture"
               allowFullScreen
@@ -239,21 +262,21 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
         )}
       </section>
 
-      <Card className="shadow-lg shadow-primary/5">
+      <Card className="min-w-0 shadow-lg shadow-primary/5">
         <CardHeader>
           <CardTitle>
-            <h2 className="text-xl">Antes de começar</h2>
+            <h2 className="text-xl">{t('intro.beforeStart')}</h2>
           </CardTitle>
-          <CardDescription>Identifique-se para registrar sua participação.</CardDescription>
+          <CardDescription>{t('intro.identify')}</CardDescription>
         </CardHeader>
         <form onSubmit={submit} noValidate>
           <CardContent className="space-y-4">
             <div id="tour-name" className="space-y-2">
-              <Label htmlFor="name">Nome completo</Label>
+              <Label htmlFor="name">{t('intro.name')}</Label>
               <Input id="name" autoComplete="name" required maxLength={60} value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div id="tour-email" className="space-y-2">
-              <Label htmlFor="email">E-mail institucional</Label>
+              <Label htmlFor="email">{t('intro.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -261,28 +284,28 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
                 inputMode="email"
                 required
                 maxLength={200}
-                placeholder={domains[0] ? `seu.nome@${domains[0]}` : 'voce@exemplo.com'}
+                placeholder={t('intro.emailPlaceholder')}
                 aria-describedby="email-hint"
                 aria-invalid={email.length > 0 && !emailOk}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <p id="email-hint" className={cn('text-xs', email && !emailOk ? 'text-destructive' : 'text-muted-foreground')}>
-                Aceito somente e-mail {domains.map((d) => `@${d}`).join(' ou ')}.
+                {domains.length ? t('intro.emailHintDomains', { domains: domainList }) : t('intro.emailHint')}
               </p>
             </div>
 
             <div id="tour-consent" className="space-y-3">
-              <div className="max-h-40 overflow-y-auto rounded-lg border bg-muted/50 p-3" tabIndex={0} aria-label="Termo de consentimento">
-                <ConsentText domains={domains} />
+              <div className="max-h-40 overflow-y-auto rounded-lg border bg-muted/50 p-3" tabIndex={0} aria-label={t('intro.consentBox')}>
+                <ConsentText />
               </div>
               <div className="flex items-start gap-3">
                 <Checkbox id="consent" checked={consent} onCheckedChange={(v) => setConsent(v === true)} aria-required />
                 <Label htmlFor="consent" className="text-sm leading-snug font-normal">
                   <span>
-                    Li e concordo com a coleta e o uso dos meus dados conforme o termo acima.{' '}
+                    {t('intro.consentAgree')}{' '}
                     <Link to="/privacidade" className="underline underline-offset-2" target="_blank">
-                      Aviso de privacidade
+                      {t('intro.privacyLink')}
                     </Link>
                   </span>
                 </Label>
@@ -301,7 +324,7 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
           </CardContent>
           <CardFooter className="pt-6">
             <Button id="tour-start" type="submit" size="lg" disabled={busy || !consent} className="w-full rounded-full">
-              {busy ? 'Preparando…' : 'Começar quiz'} <Play aria-hidden />
+              {busy ? t('intro.preparing') : t('intro.start')} <Play aria-hidden />
             </Button>
           </CardFooter>
         </form>
@@ -311,21 +334,22 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
 }
 
 function Ready({ name, total, onDone }: { name: string; total: number; onDone: () => void }) {
+  const { t } = useTranslation()
   const reduce = useReducedMotion()
   const [count, setCount] = useState(3)
   const firstName = name.split(/\s+/)[0]
 
   useEffect(() => {
     if (reduce) {
-      const t = setTimeout(onDone, 600)
-      return () => clearTimeout(t)
+      const timer = setTimeout(onDone, 600)
+      return () => clearTimeout(timer)
     }
     if (count === 0) {
-      const t = setTimeout(onDone, 350)
-      return () => clearTimeout(t)
+      const timer = setTimeout(onDone, 350)
+      return () => clearTimeout(timer)
     }
-    const t = setTimeout(() => setCount((c) => c - 1), 750)
-    return () => clearTimeout(t)
+    const timer = setTimeout(() => setCount((c) => c - 1), 750)
+    return () => clearTimeout(timer)
   }, [count, reduce, onDone])
 
   return (
@@ -338,10 +362,8 @@ function Ready({ name, total, onDone }: { name: string; total: number; onDone: (
         <LogoMark className="size-16 rounded-2xl text-3xl" />
       </motion.div>
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Tudo certo, {firstName}!</h1>
-        <p className="text-muted-foreground">
-          São {total} questões. Leia com atenção e confira a explicação após cada resposta.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t('ready.title', { name: firstName })}</h1>
+        <p className="text-muted-foreground">{t('ready.text', { count: total })}</p>
       </div>
       <div className="relative grid size-24 place-items-center">
         <motion.span
@@ -359,12 +381,12 @@ function Ready({ name, total, onDone }: { name: string; total: number; onDone: (
             transition={{ duration: 0.35, ease: EASE }}
             className="text-4xl font-bold text-primary tabular-nums"
           >
-            {count === 0 ? 'Vai!' : count}
+            {count === 0 ? t('ready.go') : count}
           </motion.span>
         </AnimatePresence>
       </div>
       <Button variant="ghost" size="sm" onClick={onDone}>
-        Pular
+        {t('ready.skip')}
       </Button>
     </div>
   )
@@ -383,6 +405,7 @@ function QuestionStep({
   onAnswered: (r: Reviewed) => void
   onNext: () => void
 }) {
+  const { t } = useTranslation()
   const q = quiz.questions[index]
   const { sound } = usePreferences()
   const [selected, setSelected] = useState<number | null>(null)
@@ -405,8 +428,8 @@ function QuestionStep({
   }, [index])
 
   const readAloud = () => {
-    const opts = q.options.map((o, i) => `Alternativa ${LETTERS[i]}: ${o}.`).join(' ')
-    speak(`Questão ${index + 1}. ${q.prompt}. ${q.code ? 'Analise o código exibido na tela.' : ''} ${opts}`)
+    const opts = q.options.map((o, i) => t('question.speakOption', { letter: LETTERS[i], text: o })).join(' ')
+    speak(`${t('question.speakQuestion', { n: index + 1, prompt: q.prompt })} ${q.code ? t('question.speakCode') : ''} ${opts}`, languageTag())
   }
 
   const confirm = useCallback(async () => {
@@ -454,19 +477,33 @@ function QuestionStep({
     >
       <div id="tour-progress" className="space-y-2">
         <div className="flex items-center gap-2 text-sm">
-          <span className="font-medium tabular-nums">
-            Questão {index + 1} <span className="text-muted-foreground">de {total}</span>
+          <span className="shrink-0 font-medium tabular-nums">
+            {t('question.number', { n: index + 1 })} <span className="text-muted-foreground">{t('question.ofTotal', { total })}</span>
           </span>
           {q.concept && (
-            <Badge variant="secondary" className="font-normal">
+            <Badge variant="secondary" className="min-w-0 truncate font-normal">
               {q.concept}
             </Badge>
           )}
-          <Button id="tour-help" variant="ghost" size="icon" className="ml-auto size-8" onClick={() => runTour('question')} aria-label="Ver tutorial">
+          <Button
+            id="tour-help"
+            variant="ghost"
+            size="icon"
+            className="ml-auto size-8 shrink-0"
+            onClick={() => runTour('question')}
+            aria-label={t('question.help')}
+          >
             <CircleHelp aria-hidden />
           </Button>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-secondary" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)} aria-label="Progresso do quiz">
+        <div
+          className="h-2 overflow-hidden rounded-full bg-secondary"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(progress)}
+          aria-label={t('question.progress')}
+        >
           <motion.div
             className="h-full rounded-full bg-primary"
             initial={{ width: `${(index / total) * 100}%` }}
@@ -478,15 +515,15 @@ function QuestionStep({
 
       <Card className="shadow-lg shadow-primary/5">
         <CardHeader className="gap-4">
-          <h1 ref={headingRef} tabIndex={-1} className="text-xl leading-snug font-semibold text-pretty outline-none sm:text-2xl">
+          <h1 ref={headingRef} tabIndex={-1} className="text-lg leading-snug font-semibold text-pretty outline-none sm:text-2xl">
             {q.prompt}
           </h1>
           {speechSupported && (
             <div id="tour-listen" className="flex w-fit gap-1">
               <Button variant="outline" size="sm" className="rounded-full" onClick={readAloud}>
-                <Volume2 aria-hidden /> Ouvir questão
+                <Volume2 aria-hidden /> {t('question.listen')}
               </Button>
-              <Button variant="ghost" size="icon" className="size-8 rounded-full" onClick={stopSpeaking} aria-label="Parar leitura">
+              <Button variant="ghost" size="icon" className="size-8 rounded-full" onClick={stopSpeaking} aria-label={t('question.stop')}>
                 <Square aria-hidden />
               </Button>
             </div>
@@ -495,18 +532,21 @@ function QuestionStep({
 
         <CardContent className="space-y-5">
           {q.imageUrl && (
-            <figure className="overflow-hidden rounded-xl border bg-white p-4">
+            <figure className="overflow-hidden rounded-xl border bg-white p-3 sm:p-4">
               <img src={q.imageUrl} alt={q.imageAlt ?? ''} className="mx-auto max-h-72 w-auto" />
             </figure>
           )}
           {q.code && (
-            <pre className="overflow-x-auto rounded-xl border border-white/5 bg-[oklch(0.22_0.02_275)] p-4 font-mono text-sm leading-relaxed text-[oklch(0.92_0.02_275)]" aria-label="Código do algoritmo">
+            <pre
+              className="overflow-x-auto rounded-xl border border-white/5 bg-[oklch(0.22_0.02_275)] p-4 font-mono text-sm leading-relaxed text-[oklch(0.92_0.02_275)]"
+              aria-label={t('question.code')}
+            >
               <code>{q.code}</code>
             </pre>
           )}
 
           <fieldset id="tour-options" disabled={!!result || busy}>
-            <legend className="sr-only">Alternativas</legend>
+            <legend className="sr-only">{t('question.options')}</legend>
             <div className="grid gap-2.5">
               {q.options.map((opt, i) => {
                 const isSelected = selected === i
@@ -541,9 +581,9 @@ function QuestionStep({
                     >
                       {LETTERS[i]}
                     </span>
-                    <span className="flex-1">{opt}</span>
-                    {isCorrect && <CheckCircle2 className="size-5 text-success" aria-label="Resposta correta" />}
-                    {isWrongPick && <XCircle className="size-5 text-destructive" aria-label="Sua resposta (incorreta)" />}
+                    <span className="min-w-0 flex-1 break-words">{opt}</span>
+                    {isCorrect && <CheckCircle2 className="size-5 shrink-0 text-success" aria-label={t('question.correctAria')} />}
+                    {isWrongPick && <XCircle className="size-5 shrink-0 text-destructive" aria-label={t('question.wrongAria')} />}
                   </motion.label>
                 )
               })}
@@ -575,7 +615,7 @@ function QuestionStep({
                   )}
                   <div className="space-y-1">
                     <p className="font-semibold">
-                      {result.correct ? 'Correto! 🎉' : `Quase! A resposta correta é a ${LETTERS[result.correctIndex]}.`}
+                      {result.correct ? t('question.correctTitle') : t('question.wrongTitle', { letter: LETTERS[result.correctIndex] })}
                     </p>
                     <p className="text-sm leading-relaxed text-pretty text-foreground/80">{result.explanation}</p>
                   </div>
@@ -587,16 +627,17 @@ function QuestionStep({
 
         <CardFooter className="justify-between gap-2 border-t pt-6">
           <p className="hidden text-xs text-muted-foreground sm:block">
-            Atalhos: <kbd className="rounded border px-1">A</kbd>–<kbd className="rounded border px-1">{LETTERS[q.options.length - 1]}</kbd> escolhe ·{' '}
-            <kbd className="rounded border px-1">Enter</kbd> confirma
+            {t('question.shortcuts')} <kbd className="rounded border px-1">A</kbd>–
+            <kbd className="rounded border px-1">{LETTERS[q.options.length - 1]}</kbd> {t('question.shortcutChoose')} ·{' '}
+            <kbd className="rounded border px-1">Enter</kbd> {t('question.shortcutConfirm')}
           </p>
           {!result ? (
-            <Button id="tour-confirm" size="lg" className="rounded-full" onClick={confirm} disabled={selected === null || busy}>
-              Confirmar resposta
+            <Button id="tour-confirm" size="lg" className="w-full rounded-full sm:w-auto" onClick={confirm} disabled={selected === null || busy}>
+              {t('question.confirm')}
             </Button>
           ) : (
-            <Button size="lg" className="rounded-full" onClick={onNext}>
-              {isLast ? 'Ver resultado' : 'Próxima questão'} <ArrowRight aria-hidden />
+            <Button size="lg" className="w-full rounded-full sm:w-auto" onClick={onNext}>
+              {isLast ? t('question.result') : t('question.next')} <ArrowRight aria-hidden />
             </Button>
           )}
         </CardFooter>
@@ -609,7 +650,7 @@ function ScoreRing({ pct }: { pct: number }) {
   const r = 52
   const c = 2 * Math.PI * r
   return (
-    <div className="relative size-40">
+    <div className="relative size-36 sm:size-40">
       <svg viewBox="0 0 120 120" className="size-full -rotate-90" aria-hidden>
         <circle cx="60" cy="60" r={r} fill="none" strokeWidth="10" className="stroke-secondary" />
         <motion.circle
@@ -640,57 +681,97 @@ function ScoreRing({ pct }: { pct: number }) {
   )
 }
 
-function Result({ quiz, final, reviewed, onRestart }: { quiz: PublicQuiz; final: FinishResult; reviewed: Reviewed[]; onRestart: () => void }) {
+function Result({
+  quiz,
+  final,
+  attemptId,
+  reviewed,
+  onRestart,
+}: {
+  quiz: PublicQuiz
+  final: FinishResult
+  attemptId: string
+  reviewed: Reviewed[]
+  onRestart: () => void
+}) {
+  const { t } = useTranslation()
+  const [ranking, setRanking] = useState<Ranking | null>(null)
   const pct = final.total ? Math.round((final.score / final.total) * 100) : 0
-  const message =
-    pct >= 90
-      ? 'Excelente domínio de lógica!'
-      : pct >= 70
-        ? 'Muito bom! Revise os conceitos em que errou.'
-        : pct >= 50
-          ? 'Bom começo, vale revisar os conceitos abaixo.'
-          : 'Continue praticando: revise as explicações e tente de novo.'
+  const message = pct >= 90 ? t('result.msgExcellent') : pct >= 70 ? t('result.msgGood') : pct >= 50 ? t('result.msgFair') : t('result.msgLow')
   const headingRef = useRef<HTMLHeadingElement>(null)
+
   useEffect(() => headingRef.current?.focus({ preventScroll: true }), [])
+  useEffect(() => {
+    api.ranking(quiz.slug, { limit: 5, attempt: attemptId }).then(setRanking).catch(() => {})
+  }, [quiz.slug, attemptId])
 
   return (
     <div className="space-y-6">
-      <Card className="items-center gap-4 py-10 text-center shadow-lg shadow-primary/5">
+      <Card className="items-center gap-4 py-8 text-center shadow-lg shadow-primary/5 sm:py-10">
         <ScoreRing pct={pct} />
-        <div className="space-y-1">
+        <div className="space-y-1 px-4">
           <h1 ref={headingRef} tabIndex={-1} className="text-2xl font-bold outline-none">
-            {final.score} de {final.total} acertos
+            {t('result.score', { score: final.score, total: final.total })}
           </h1>
           <p className="text-muted-foreground">{message}</p>
+          <p className="text-sm text-muted-foreground">{t('result.time', { time: formatDuration(final.seconds) })}</p>
         </div>
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-wrap justify-center gap-2 px-4 pt-2">
           <Button className="rounded-full" onClick={onRestart}>
-            <RotateCcw aria-hidden /> Tentar novamente
+            <RotateCcw aria-hidden /> {t('result.tryAgain')}
           </Button>
           <Button variant="outline" className="rounded-full" asChild>
-            <Link to="/">Outros quizzes</Link>
+            <Link to="/">{t('result.otherQuizzes')}</Link>
           </Button>
         </div>
       </Card>
 
       <Card>
         <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="size-5 text-primary" aria-hidden />
+            <h2>{t('ranking.title')}</h2>
+          </CardTitle>
+          {ranking?.me && (
+            <CardDescription>
+              {ranking.me.isThisAttempt
+                ? t('ranking.yourPosition', { position: ranking.me.position, count: ranking.players })
+                : t('ranking.yourBest', { position: ranking.me.position, count: ranking.players })}
+            </CardDescription>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {ranking ? <RankingTable ranking={ranking} /> : <Skeleton className="h-40 w-full" />}
+          <Button variant="outline" className="w-full rounded-full sm:w-auto" asChild>
+            <Link to={`/quiz/${quiz.slug}/ranking?attempt=${attemptId}`}>
+              {t('ranking.full')} <ArrowRight aria-hidden />
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>
-            <h2>Desempenho por conceito</h2>
+            <h2>{t('result.byConcept')}</h2>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {final.byConcept.map((c, i) => {
             const p = c.total ? (c.correct / c.total) * 100 : 0
             return (
-              <div key={c.concept}>
-                <div className="mb-1.5 flex justify-between text-sm">
-                  <span>{c.concept || 'Geral'}</span>
+              <div key={`${c.concept}-${i}`}>
+                <div className="mb-1.5 flex justify-between gap-3 text-sm">
+                  <span>{c.concept || t('result.general')}</span>
                   <span className="tabular-nums text-muted-foreground">
                     {c.correct}/{c.total}
                   </span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-secondary" role="img" aria-label={`${c.concept}: ${c.correct} de ${c.total}`}>
+                <div
+                  className="h-2 overflow-hidden rounded-full bg-secondary"
+                  role="img"
+                  aria-label={t('result.conceptAria', { concept: c.concept, correct: c.correct, total: c.total })}
+                >
                   <motion.div
                     className={cn('h-full rounded-full', p === 100 ? 'bg-success' : p === 0 ? 'bg-destructive/70' : 'bg-primary')}
                     initial={{ width: 0 }}
@@ -707,7 +788,7 @@ function Result({ quiz, final, reviewed, onRestart }: { quiz: PublicQuiz; final:
       <Card>
         <CardHeader>
           <CardTitle>
-            <h2>Revisão das questões</h2>
+            <h2>{t('result.review')}</h2>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -718,9 +799,9 @@ function Result({ quiz, final, reviewed, onRestart }: { quiz: PublicQuiz; final:
                 <li key={q.id} className="rounded-xl border p-4">
                   <p className="flex items-start gap-2 font-medium">
                     {r?.result.correct ? (
-                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-label="Acertou" />
+                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" aria-label={t('result.hit')} />
                     ) : (
-                      <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-label="Errou" />
+                      <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-label={t('result.miss')} />
                     )}
                     <span>
                       {i + 1}. {q.prompt}
@@ -729,11 +810,17 @@ function Result({ quiz, final, reviewed, onRestart }: { quiz: PublicQuiz; final:
                   {r && (
                     <div className="mt-2 space-y-1 pl-7 text-sm">
                       <p>
-                        Sua resposta: <strong>{LETTERS[r.selected]}) {q.options[r.selected]}</strong>
+                        {t('result.yourAnswer')}{' '}
+                        <strong>
+                          {LETTERS[r.selected]}) {q.options[r.selected]}
+                        </strong>
                       </p>
                       {!r.result.correct && (
                         <p>
-                          Correta: <strong>{LETTERS[r.result.correctIndex]}) {q.options[r.result.correctIndex]}</strong>
+                          {t('result.correctAnswer')}{' '}
+                          <strong>
+                            {LETTERS[r.result.correctIndex]}) {q.options[r.result.correctIndex]}
+                          </strong>
                         </p>
                       )}
                       <p className="text-muted-foreground">{r.result.explanation}</p>

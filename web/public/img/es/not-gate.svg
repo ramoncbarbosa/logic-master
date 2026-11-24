@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200" role="img" aria-labelledby="t"><title id="t">Compuerta lógica NOT (NO) con entrada P y salida ¬P</title>
+<rect width="420" height="200" fill="#fff"/>
+<g stroke="#0d366b" stroke-width="4" fill="none" stroke-linecap="round">
+<line x1="40" y1="100" x2="150" y2="100"/>
+<path d="M150 50 L250 100 L150 150 Z" fill="#d3f2e5"/><circle cx="262" cy="100" r="12" fill="#fff"/>
+<line x1="274" y1="100" x2="370" y2="100"/></g>
+<g font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="24" fill="#0b0b0b" font-weight="600"><text x="14" y="108">P</text><text x="310" y="88">¬P</text></g>
+<text x="210" y="190" text-anchor="middle" font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="15" fill="#52514e">Invierte el valor lógico de la entrada</text></svg>

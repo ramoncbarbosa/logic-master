@@ -1,3 +1,5 @@
+import type { Locale } from './lib/i18n'
+
 export type Bindings = {
   DB: D1Database
   JWT_SECRET: string
@@ -11,6 +13,7 @@ export type Bindings = {
 
 export type Variables = {
   ownerId: number
+  locale: Locale
 }
 
 export type AppEnv = { Bindings: Bindings; Variables: Variables }
@@ -53,6 +56,26 @@ export type QuestionRow = {
   explanation: string
 }
 
+export type QuizTranslationInput = {
+  title: string
+  description: string
+  audience: string
+  objective: string
+  videoUrl: string | null
+}
+
+export type QuestionTranslationInput = {
+  prompt: string
+  concept: string
+  options: string[]
+  explanation: string
+  imageUrl: string | null
+  imageAlt: string | null
+  code: string | null
+}
+
+export type Translations<T> = Partial<Record<Locale, T>>
+
 export type QuestionInput = {
   id?: number
   prompt: string
@@ -63,6 +86,7 @@ export type QuestionInput = {
   options: string[]
   correctIndex: number
   explanation?: string
+  translations: Translations<QuestionTranslationInput>
 }
 
 export type QuizInput = {
@@ -76,4 +100,5 @@ export type QuizInput = {
   license?: string
   published?: boolean
   questions: QuestionInput[]
+  translations: Translations<QuizTranslationInput>
 }

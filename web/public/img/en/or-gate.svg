@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200" role="img" aria-labelledby="t"><title id="t">OR logic gate with inputs P and Q and output P ∨ Q</title>
+<rect width="420" height="200" fill="#fff"/>
+<g stroke="#0d366b" stroke-width="4" fill="none" stroke-linecap="round">
+<line x1="40" y1="70" x2="150" y2="70"/><line x1="40" y1="130" x2="150" y2="130"/>
+<path d="M130 40 Q170 100 130 160 Q220 160 265 100 Q220 40 130 40 Z" fill="#fbe0d3"/>
+<line x1="265" y1="100" x2="370" y2="100"/></g>
+<g font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="24" fill="#0b0b0b" font-weight="600"><text x="14" y="78">P</text><text x="14" y="138">Q</text><text x="300" y="88">P ∨ Q</text><text x="195" y="108" font-size="20" text-anchor="middle">OR</text></g>
+<text x="210" y="190" text-anchor="middle" font-family="system-ui,Segoe UI,Arial,sans-serif" font-size="15" fill="#52514e">Output = 1 if at least one input is 1</text></svg>

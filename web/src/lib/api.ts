@@ -1,3 +1,5 @@
+import i18n from '@/i18n'
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message)
@@ -8,11 +10,15 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`/api${path}`, {
     credentials: 'same-origin',
     ...init,
-    headers: { ...(init.body ? { 'Content-Type': 'application/json' } : {}), ...init.headers },
+    headers: {
+      'Accept-Language': i18n.language,
+      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+      ...init.headers,
+    },
   })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
-    throw new ApiError(res.status, data.error ?? `Erro ${res.status}`)
+    throw new ApiError(res.status, data.error ?? i18n.t('common.connectionError'))
   }
   return res.json() as Promise<T>
 }
@@ -36,6 +42,7 @@ export type QuizMeta = {
   questionCount?: number
   concepts?: string[]
   attemptCount?: number
+  locales?: string[]
   avgPct?: number | null
 }
 
@@ -50,14 +57,29 @@ export type PublicQuestion = {
   options: string[]
 }
 
-export type OwnerQuestion = PublicQuestion & { correctIndex: number; explanation: string }
+export type Locale = 'pt' | 'en' | 'es' | 'fr'
+export type TranslatableLocale = Exclude<Locale, 'pt'>
+
+export type QuizTranslation = { title: string; description: string; audience: string; objective: string; videoUrl: string | null }
+export type QuestionTranslation = {
+  prompt: string
+  concept: string
+  options: string[]
+  explanation: string
+  imageUrl: string | null
+  imageAlt: string | null
+  code: string | null
+}
+export type Translations<T> = Partial<Record<TranslatableLocale, T>>
+
+export type OwnerQuestion = PublicQuestion & { correctIndex: number; explanation: string; translations: Translations<QuestionTranslation> }
 
 export type PublicQuiz = QuizMeta & { questions: PublicQuestion[] }
-export type OwnerQuiz = QuizMeta & { questions: OwnerQuestion[] }
+export type OwnerQuiz = QuizMeta & { questions: OwnerQuestion[]; translations: Translations<QuizTranslation> }
 
 export type AnswerResult = { correct: boolean; correctIndex: number; explanation: string }
-export type FinishResult = { score: number; total: number; byConcept: { concept: string; total: number; correct: number }[] }
-export type PublicConfig = { allowedEmailDomains: string[]; consentVersion: string }
+export type FinishResult = { score: number; total: number; seconds: number; byConcept: { concept: string; total: number; correct: number }[] }
+export type PublicConfig = { allowedEmailDomains: string[]; consentVersion: string; locales: Locale[] }
 export type Owner = { id: number; name: string; email: string }
 
 export type QuizInput = {
@@ -80,7 +102,9 @@ export type QuizInput = {
     options: string[]
     correctIndex: number
     explanation: string
+    translations: Translations<QuestionTranslation>
   }[]
+  translations: Translations<QuizTranslation>
 }
 
 export type QuizStats = {
@@ -109,6 +133,7 @@ export type QuizStats = {
   perConcept: { concept: string; answered: number; correct: number }[]
   perDay: { day: string; attempts: number; avgPct: number | null }[]
   byCountry: { country: string; attempts: number }[]
+  byLocale: { locale: string; attempts: number }[]
   locations: { lat: number; lon: number; city: string | null; region: string | null; country: string | null; attempts: number }[]
 }
 
@@ -127,7 +152,11 @@ export type AttemptRow = {
   total: number
   consentAt: string | null
   consentVersion: string | null
+  locale: string
 }
+
+export type RankingEntry = { position: number; name: string; score: number; total: number; seconds: number }
+export type Ranking = { entries: RankingEntry[]; players: number; me: (RankingEntry & { isThisAttempt: boolean }) | null }
 
 export const api = {
   config: () => request<PublicConfig>('/config'),
@@ -138,6 +167,12 @@ export const api = {
   answer: (attemptId: string, body: { questionId: number; selectedIndex: number; timeMs: number }) =>
     post<AnswerResult>(`/attempts/${attemptId}/answers`, body),
   finish: (attemptId: string) => post<FinishResult>(`/attempts/${attemptId}/finish`),
+  ranking: (slug: string, opts: { limit?: number; attempt?: string } = {}) => {
+    const q = new URLSearchParams()
+    if (opts.limit) q.set('limit', String(opts.limit))
+    if (opts.attempt) q.set('attempt', opts.attempt)
+    return request<Ranking>(`/quizzes/${encodeURIComponent(slug)}/ranking?${q}`)
+  },
 
   devLogin: () => request<{ email: string; password: string } | null>('/auth/dev-login'),
   me: () => request<Owner>('/auth/me'),

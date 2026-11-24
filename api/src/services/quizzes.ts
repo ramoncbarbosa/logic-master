@@ -1,5 +1,6 @@
 import { DEFAULT_LICENSE } from '../config'
 import type { QuizInput, QuizRow } from '../types'
+import { saveTranslations } from './content'
 
 export const getOwnedQuiz = (db: D1Database, quizId: number, ownerId: number) =>
   db.prepare('SELECT * FROM quizzes WHERE id = ? AND owner_id = ?').bind(quizId, ownerId).first<QuizRow>()
@@ -59,6 +60,7 @@ export async function createQuiz(db: D1Database, ownerId: number, input: QuizInp
   const quizId = Number(res.meta.last_row_id)
   const stmts = questionStatements(db, quizId, { ...input, questions: input.questions.map((q) => ({ ...q, id: undefined })) })
   if (stmts.length) await db.batch(stmts)
+  await saveTranslations(db, quizId, input)
   return quizId
 }
 
@@ -78,4 +80,5 @@ export async function updateQuiz(db: D1Database, quizId: number, input: QuizInpu
     deleteRemoved,
     ...questionStatements(db, quizId, input),
   ])
+  await saveTranslations(db, quizId, input)
 }

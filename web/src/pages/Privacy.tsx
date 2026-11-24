@@ -1,24 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import ConsentText from '@/components/ConsentText'
-import { api } from '@/lib/api'
 import { Card, CardContent } from '@/components/ui/card'
+import { useDocumentTitle } from '@/lib/use-document-title'
 
 export default function Privacy() {
-  const [domains, setDomains] = useState<string[]>(['icen.ufpa.br'])
-  useEffect(() => {
-    document.title = 'Privacidade — Logic Master'
-    api.config().then((c) => setDomains(c.allowedEmailDomains)).catch(() => {})
-  }, [])
+  const { t } = useTranslation()
+  useDocumentTitle(t('privacy.title'))
   return (
     <div className="mx-auto max-w-3xl space-y-4">
-      <h1 className="text-3xl font-bold">Aviso de privacidade</h1>
+      <h1 className="text-2xl font-bold sm:text-3xl">{t('privacy.title')}</h1>
       <Card>
         <CardContent className="space-y-4">
-          <ConsentText domains={domains} />
-          <p className="text-sm">
-            <strong>Segurança:</strong> conexão HTTPS, senhas do professor armazenadas com hash PBKDF2, sessão em cookie
-            HttpOnly, limitação de requisições por IP e banco de dados acessível apenas pelo servidor.
-          </p>
+          <ConsentText />
+          <p className="text-sm">{t('privacy.security')}</p>
         </CardContent>
       </Card>
     </div>

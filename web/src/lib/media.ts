@@ -1,12 +1,12 @@
 export const speechSupported = typeof window !== 'undefined' && 'speechSynthesis' in window
 
-export function speak(text: string) {
+export function speak(text: string, lang = 'pt-BR') {
   if (!speechSupported) return
   window.speechSynthesis.cancel()
   const u = new SpeechSynthesisUtterance(text)
-  u.lang = 'pt-BR'
+  u.lang = lang
   u.rate = 0.95
-  const voice = window.speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith('pt'))
+  const voice = window.speechSynthesis.getVoices().find((v) => v.lang.toLowerCase().startsWith(lang.slice(0, 2).toLowerCase()))
   if (voice) u.voice = voice
   window.speechSynthesis.speak(u)
 }

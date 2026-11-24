@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { fail } from '../lib/i18n'
 import { DUMMY_HASH, DUMMY_SALT, verifyPassword } from '../lib/password'
 import { endSession, startSession } from '../lib/session'
 import { clientIp } from '../lib/visitor'
@@ -22,7 +23,7 @@ authRoutes.post('/login', rateLimit('RL_AUTH', 'auth'), async (c) => {
   const ip = clientIp(c)
   if (await isLoginLocked(c.env.DB, ip, email)) {
     c.header('Retry-After', '900')
-    return c.json({ error: 'Muitas tentativas de login. Acesso bloqueado por 15 minutos.' }, 429)
+    return fail(c, 429, 'tooManyLogins')
   }
 
   const owner = await c.env.DB.prepare('SELECT * FROM owners WHERE email = ?').bind(email).first<OwnerRow>()
@@ -33,7 +34,7 @@ authRoutes.post('/login', rateLimit('RL_AUTH', 'auth'), async (c) => {
   )
   if (!owner || !valid) {
     await recordLoginFailure(c.env.DB, ip, email)
-    return c.json({ error: 'E-mail ou senha incorretos' }, 401)
+    return fail(c, 401, 'invalidCredentials')
   }
 
   await clearLoginFailures(c.env.DB, ip, email)
@@ -48,6 +49,6 @@ authRoutes.post('/logout', (c) => {
 
 authRoutes.get('/me', requireOwner, async (c) => {
   const owner = await c.env.DB.prepare('SELECT id, name, email FROM owners WHERE id = ?').bind(c.get('ownerId')).first()
-  if (!owner) return c.json({ error: 'Não autenticado' }, 401)
+  if (!owner) return fail(c, 401, 'unauthenticated')
   return c.json(owner)
 })

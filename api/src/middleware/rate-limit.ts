@@ -1,4 +1,5 @@
 import { createMiddleware } from 'hono/factory'
+import { fail } from '../lib/i18n'
 import { clientIp } from '../lib/visitor'
 import type { AppEnv } from '../types'
 
@@ -11,7 +12,7 @@ export const rateLimit = (name: LimiterName, scope: string) =>
       const { success } = await limiter.limit({ key: `${scope}:${clientIp(c)}` })
       if (!success) {
         c.header('Retry-After', '60')
-        return c.json({ error: 'Muitas requisições. Aguarde um minuto e tente novamente.' }, 429)
+        return fail(c, 429, 'tooManyRequests')
       }
     }
     await next()

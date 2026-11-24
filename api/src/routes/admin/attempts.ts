@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { fail } from '../../lib/i18n'
 import type { AppEnv } from '../../types'
 
 export const adminAttemptRoutes = new Hono<AppEnv>()
@@ -9,6 +10,6 @@ adminAttemptRoutes.delete('/:attemptId', async (c) => {
   )
     .bind(c.req.param('attemptId'), c.get('ownerId'))
     .run()
-  if (!res.meta.changes) return c.json({ error: 'Tentativa não encontrada' }, 404)
+  if (!res.meta.changes) return fail(c, 404, 'attemptNotFound')
   return c.json({ ok: true })
 })

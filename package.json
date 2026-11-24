@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "Logic Master — Recurso Educacional Digital (quiz) de Lógica Computacional em Cloudflare Workers (Hono + React + D1)",
-  "license": "MIT",
+  "license": "CC-BY-NC-SA-4.0",
   "packageManager": "pnpm@12.23.0",
   "scripts": {
     "db:migrate:local": "pnpm --filter api db:migrate:local",
