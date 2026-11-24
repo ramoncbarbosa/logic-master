@@ -1,11 +1,13 @@
 # Logic Master
 
+**Português** · [English](README.en.md) · [Español](README.es.md) · [Français](README.fr.md)
+
 Um quiz para treinar lógica computacional: proposições, tabelas-verdade, fluxogramas, condicionais, laços e teste de mesa.
 
 **Acesse:** https://logic-master-web.ramon-cs-barbosa.workers.dev
 
 Criei o Logic Master como Recurso Educacional Digital para a disciplina de Tópicos Especiais: Educação em Computação (UFPA, 2026.2). 
-A ideia é simples: para que alunos possam praticar por meio de quizzis de lógica computacional.
+A ideia é simples: permitir que os alunos pratiquem lógica computacional por meio de quizzes.
 
 ## Como funciona para quem estuda
 
@@ -26,7 +28,8 @@ O professor entra numa área própria, com login, onde pode:
 - ver em gráficos quais questões a turma mais errou e quais alternativas erradas foram mais escolhidas, o que costuma revelar a confusão por trás do erro;
 - acompanhar o desempenho por conceito e por dia;
 - ver num globo de onde os alunos responderam;
-- consultar a lista de participantes e exportar tudo em CSV.
+- consultar a lista de participantes e exportar tudo em CSV;
+- acompanhar a avaliação de usabilidade (questionário SUS) que os alunos respondem ao final do quiz, com nota média, classificação, gráficos, comentários e exportação em CSV.
 
 ## Do que é feito
 
@@ -50,7 +53,7 @@ pnpm db:reset:local
 pnpm preview
 ```
 
-O site abre em http://localhost:8787. O `db:reset:local` cria o banco com um quiz de exemplo e uma conta de professor de teste, definida no `.dev.vars`. Na tela de login, o botão **Usar conta de teste** já preenche os dados.
+O site abre em http://localhost:8787. O `db:reset:local` cria o banco com os quatro quizzes e uma conta de professor de teste, definida no `.dev.vars`. Na tela de login, o botão **Usar conta de teste** já preenche os dados.
 
 Se for mexer no visual, rode `pnpm dev:api` e `pnpm dev:web` em dois terminais para ter recarregamento automático.
 

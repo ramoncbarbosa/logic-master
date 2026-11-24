@@ -21,6 +21,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
+import SusPanel from '@/components/SusPanel'
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation()
@@ -141,6 +142,8 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
+
+      <SusPanel title={t('sus.adminTitleAll')} description={`${t('sus.adminDescAll')} ${t('sus.adminDesc')}`} />
     </div>
   )
 }

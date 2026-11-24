@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import LocationGlobe from '@/components/LocationGlobe'
+import SusPanel from '@/components/SusPanel'
 import { useMediaQuery } from '@/lib/use-media-query'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart'
@@ -125,10 +126,11 @@ export default function QuizStats() {
       </section>
 
       <Tabs defaultValue="geral">
-        <TabsList className="w-full sm:w-fit">
+        <TabsList className="h-auto w-full flex-wrap sm:w-fit">
           <TabsTrigger value="geral">{t('stats.tabOverview')}</TabsTrigger>
           <TabsTrigger value="questoes">{t('stats.tabQuestions')}</TabsTrigger>
           <TabsTrigger value="participantes">{t('stats.tabParticipants', { count: attempts.length })}</TabsTrigger>
+          <TabsTrigger value="sus">{t('sus.tab')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="geral" className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -310,6 +312,10 @@ export default function QuizStats() {
               </Card>
             )
           })}
+        </TabsContent>
+
+        <TabsContent value="sus">
+          <SusPanel quizId={id} title={t('sus.adminTitle')} description={t('sus.adminDesc')} />
         </TabsContent>
 
         <TabsContent value="participantes">

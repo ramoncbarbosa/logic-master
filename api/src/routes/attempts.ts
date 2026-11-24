@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { ATTEMPT_MAX_AGE_HOURS, CONSENT_VERSION, allowedEmailDomains } from '../config'
 import { fail } from '../lib/i18n'
 import { parseOptions } from '../lib/mappers'
+import { isValidSusAnswers, susScore } from '../lib/sus'
 import { visitorInfo } from '../lib/visitor'
 import { rateLimit } from '../middleware/rate-limit'
 import { tooManyAttemptsFromIp } from '../services/attempts'
@@ -12,6 +13,7 @@ const PARTICIPANT_EMAIL = /^[a-z0-9._%+-]+@([a-z0-9-]+(?:\.[a-z0-9-]+)+)$/
 
 type StartBody = { playerName?: string; playerEmail?: string; consent?: boolean; consentVersion?: string }
 type AnswerBody = { questionId?: number; selectedIndex?: number; timeMs?: number }
+type SusBody = { answers?: unknown; comment?: string }
 
 export const attemptRoutes = new Hono<AppEnv>()
 
@@ -130,4 +132,26 @@ attemptRoutes.post('/attempts/:id/finish', async (c) => {
     .bind(id)
     .first<{ seconds: number }>()
   return c.json({ score, total: attempt.total, seconds: timing?.seconds ?? 0, byConcept: results })
+})
+
+attemptRoutes.post('/attempts/:id/sus', async (c) => {
+  const body = await c.req.json<SusBody>().catch((): SusBody => ({}))
+  if (!isValidSusAnswers(body.answers)) return fail(c, 400, 'susInvalid')
+  const attempt = await c.env.DB.prepare('SELECT id, quiz_id, finished_at FROM attempts WHERE id = ?')
+    .bind(c.req.param('id'))
+    .first<{ id: string; quiz_id: number; finished_at: string | null }>()
+  if (!attempt) return fail(c, 404, 'attemptNotFound')
+  if (!attempt.finished_at) return fail(c, 409, 'susNotFinished')
+
+  const answers = body.answers
+  const score = susScore(answers)
+  const comment = String(body.comment ?? '').trim().slice(0, 1000) || null
+  const inserted = await c.env.DB.prepare(
+    `INSERT OR IGNORE INTO sus_responses (attempt_id, quiz_id, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, score, comment, locale)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  )
+    .bind(attempt.id, attempt.quiz_id, ...answers, score, comment, c.get('locale'))
+    .run()
+  if (!inserted.meta.changes) return fail(c, 409, 'susAlreadySent')
+  return c.json({ score }, 201)
 })

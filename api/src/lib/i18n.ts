@@ -75,6 +75,16 @@ const pt = {
   'field.explanation': 'Questão {n}: explicação',
   csvHeader: 'nome,email,ip,pais,regiao,cidade,inicio,fim,acertos,total,idioma,consentimento_em,versao_termo,navegador',
   csvFile: 'tentativas',
+  susInvalid: 'Responda as 10 afirmações com valores de 1 a 5',
+  susAlreadySent: 'Você já avaliou a plataforma nesta tentativa',
+  susNotFinished: 'Conclua o quiz antes de avaliar a plataforma',
+  susCsvHeader: 'quiz,nome,email,idioma,respondido_em,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,pontuacao_sus,classificacao,comentario',
+  susCsvFile: 'sus',
+  'grade.excellent': 'Excelente',
+  'grade.good': 'Bom',
+  'grade.ok': 'Razoável',
+  'grade.poor': 'Ruim',
+  'grade.awful': 'Péssimo',
 }
 
 type Messages = Record<keyof typeof pt, string>
@@ -134,6 +144,16 @@ const en: Messages = {
   'field.explanation': 'Question {n}: explanation',
   csvHeader: 'name,email,ip,country,region,city,started,finished,correct,total,language,consent_at,consent_version,browser',
   csvFile: 'attempts',
+  susInvalid: 'Answer all 10 statements with values from 1 to 5',
+  susAlreadySent: 'You have already rated the platform for this attempt',
+  susNotFinished: 'Finish the quiz before rating the platform',
+  susCsvHeader: 'quiz,name,email,language,answered_at,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,sus_score,grade,comment',
+  susCsvFile: 'sus',
+  'grade.excellent': 'Excellent',
+  'grade.good': 'Good',
+  'grade.ok': 'OK',
+  'grade.poor': 'Poor',
+  'grade.awful': 'Awful',
 }
 
 const es: Messages = {
@@ -190,6 +210,16 @@ const es: Messages = {
   'field.explanation': 'Pregunta {n}: explicación',
   csvHeader: 'nombre,correo,ip,pais,region,ciudad,inicio,fin,aciertos,total,idioma,consentimiento_en,version_termino,navegador',
   csvFile: 'intentos',
+  susInvalid: 'Responde las 10 afirmaciones con valores de 1 a 5',
+  susAlreadySent: 'Ya evaluaste la plataforma en este intento',
+  susNotFinished: 'Termina el quiz antes de evaluar la plataforma',
+  susCsvHeader: 'quiz,nombre,correo,idioma,respondido_en,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,puntuacion_sus,clasificacion,comentario',
+  susCsvFile: 'sus',
+  'grade.excellent': 'Excelente',
+  'grade.good': 'Bueno',
+  'grade.ok': 'Aceptable',
+  'grade.poor': 'Malo',
+  'grade.awful': 'Pésimo',
 }
 
 const fr: Messages = {
@@ -246,6 +276,16 @@ const fr: Messages = {
   'field.explanation': 'Question {n} : explication',
   csvHeader: 'nom,email,ip,pays,region,ville,debut,fin,bonnes_reponses,total,langue,consentement_le,version_conditions,navigateur',
   csvFile: 'tentatives',
+  susInvalid: 'Répondez aux 10 affirmations avec des valeurs de 1 à 5',
+  susAlreadySent: 'Vous avez déjà évalué la plateforme pour cette tentative',
+  susNotFinished: 'Terminez le quiz avant d’évaluer la plateforme',
+  susCsvHeader: 'quiz,nom,email,langue,repondu_le,q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,score_sus,classement,commentaire',
+  susCsvFile: 'sus',
+  'grade.excellent': 'Excellent',
+  'grade.good': 'Bon',
+  'grade.ok': 'Correct',
+  'grade.poor': 'Médiocre',
+  'grade.awful': 'Très mauvais',
 }
 
 const MESSAGES: Record<Locale, Messages> = { pt, en, es, fr }

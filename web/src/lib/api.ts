@@ -155,6 +155,17 @@ export type AttemptRow = {
   locale: string
 }
 
+export type SusGrade = 'excellent' | 'good' | 'ok' | 'poor' | 'awful'
+export type SusSummary = {
+  responses: number
+  mean: number | null
+  median: number | null
+  grade: SusGrade | null
+  distribution: { grade: SusGrade; count: number }[]
+  items: { item: number; mean: number | null }[]
+  comments: { comment: string; score: number; locale: string; createdAt: string; playerName: string; quizTitle: string }[]
+}
+
 export type RankingEntry = { position: number; name: string; score: number; total: number; seconds: number }
 export type Ranking = { entries: RankingEntry[]; players: number; me: (RankingEntry & { isThisAttempt: boolean }) | null }
 
@@ -167,6 +178,7 @@ export const api = {
   answer: (attemptId: string, body: { questionId: number; selectedIndex: number; timeMs: number }) =>
     post<AnswerResult>(`/attempts/${attemptId}/answers`, body),
   finish: (attemptId: string) => post<FinishResult>(`/attempts/${attemptId}/finish`),
+  sendSus: (attemptId: string, body: { answers: number[]; comment?: string }) => post<{ score: number }>(`/attempts/${attemptId}/sus`, body),
   ranking: (slug: string, opts: { limit?: number; attempt?: string } = {}) => {
     const q = new URLSearchParams()
     if (opts.limit) q.set('limit', String(opts.limit))
@@ -189,6 +201,8 @@ export const api = {
     stats: (id: number) => request<QuizStats>(`/admin/quizzes/${id}/stats`),
     attempts: (id: number) => request<AttemptRow[]>(`/admin/quizzes/${id}/attempts?limit=500`),
     deleteAttempt: (attemptId: string) => request<{ ok: true }>(`/admin/attempts/${attemptId}`, { method: 'DELETE' }),
-    csvUrl: (id: number) => `/api/admin/quizzes/${id}/attempts.csv`,
+    csvUrl: (id: number) => `/api/admin/quizzes/${id}/attempts.csv?lang=${i18n.language}`,
+    sus: (quizId?: number) => request<SusSummary>(`/admin/sus${quizId ? `?quiz=${quizId}` : ''}`),
+    susCsvUrl: (quizId?: number) => `/api/admin/sus/export.csv?lang=${i18n.language}${quizId ? `&quiz=${quizId}` : ''}`,
   },
 }

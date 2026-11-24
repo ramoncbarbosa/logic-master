@@ -44,6 +44,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { LogoMark } from '@/components/Layout'
 import ConsentText from '@/components/ConsentText'
 import RankingTable from '@/components/RankingTable'
+import SusSurvey from '@/components/SusSurvey'
 import { cn } from '@/lib/utils'
 
 type Phase = 'intro' | 'ready' | 'playing' | 'result'
@@ -749,6 +750,8 @@ function Result({
           </Button>
         </CardContent>
       </Card>
+
+      <SusSurvey attemptId={attemptId} />
 
       <Card>
         <CardHeader>
