@@ -4,4 +4,5 @@ try {
   if (p.dark || p.highContrast) r.classList.add('dark')
   if (p.highContrast) r.classList.add('high-contrast')
   if (p.fontScale) r.style.setProperty('--base-font-size', 16 * p.fontScale + 'px')
-} catch (e) {}
+} catch (e) { }
+
