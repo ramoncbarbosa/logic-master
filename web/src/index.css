@@ -179,3 +179,11 @@
 .skip-link {
   @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground;
 }
+
+@media print {
+  @page { margin: 16mm; }
+  html, body, .app-bg { background: #fff !important; }
+  .print-sheet, .print-sheet * { color: #000 !important; }
+  .print-sheet pre, .print-sheet section { background: #fff !important; }
+  [data-sonner-toaster] { display: none !important; }
+}

@@ -1,0 +1,376 @@
+{
+  "format": "logic-master-quiz",
+  "version": 1,
+  "authors": [
+    "Ramon Castro Barbosa",
+    "Maíra Bastos David de Assis"
+  ],
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "source": "https://logic-master-web.ramon-cs-barbosa.workers.dev/quiz/tabelas-verdade-conectivos",
+  "repository": "https://github.com/ramoncbarbosa/logic-master",
+  "slug": "tabelas-verdade-conectivos",
+  "title": "Tabelas-verdade e conectivos",
+  "description": "Teste o que você sabe sobre conjunção, disjunção, negação, bicondicional, tautologias e expressões compostas.",
+  "audience": "Ensino Médio Técnico e 1º período de Computação",
+  "objective": "Calcular o valor lógico de expressões compostas e reconhecer equivalências usando tabelas-verdade.",
+  "translations": {
+    "en": {
+      "title": "Truth tables and connectives",
+      "description": "Test what you know about conjunction, disjunction, negation, biconditional, tautologies and compound expressions.",
+      "audience": "Technical high school and first-year Computing students",
+      "objective": "Compute the logical value of compound expressions and recognize equivalences using truth tables."
+    },
+    "es": {
+      "title": "Tablas de verdad y conectores",
+      "description": "Pon a prueba lo que sabes sobre conjunción, disyunción, negación, bicondicional, tautologías y expresiones compuestas.",
+      "audience": "Educación media técnica y primer semestre de Computación",
+      "objective": "Calcular el valor lógico de expresiones compuestas y reconocer equivalencias usando tablas de verdad."
+    },
+    "fr": {
+      "title": "Tables de vérité et connecteurs",
+      "description": "Testez vos connaissances sur la conjonction, la disjonction, la négation, le biconditionnel, les tautologies et les expressions composées.",
+      "audience": "Lycée technique et première année d’informatique",
+      "objective": "Calculer la valeur logique d’expressions composées et reconnaître des équivalences à l’aide de tables de vérité."
+    }
+  },
+  "questions": [
+    {
+      "prompt": "Verdadeiro ou falso: a disjunção P ∨ Q só é falsa quando P e Q são falsos.",
+      "concept": "Disjunção",
+      "options": [
+        "Verdadeiro",
+        "Falso"
+      ],
+      "correctIndex": 0,
+      "explanation": "Verdadeiro. A disjunção (OU) precisa de apenas uma parte verdadeira; por isso, ela só é falsa quando as duas são falsas.",
+      "translations": {
+        "en": {
+          "prompt": "True or false: the disjunction P ∨ Q is false only when both P and Q are false.",
+          "concept": "Disjunction",
+          "options": [
+            "True",
+            "False"
+          ],
+          "explanation": "True. A disjunction (OR) needs only one true part, so it is false only when both parts are false."
+        },
+        "es": {
+          "prompt": "Verdadero o falso: la disyunción P ∨ Q solo es falsa cuando P y Q son falsos.",
+          "concept": "Disyunción",
+          "options": [
+            "Verdadero",
+            "Falso"
+          ],
+          "explanation": "Verdadero. La disyunción (O) necesita solo una parte verdadera; por eso solo es falsa cuando ambas son falsas."
+        },
+        "fr": {
+          "prompt": "Vrai ou faux : la disjonction P ∨ Q n’est fausse que lorsque P et Q sont faux.",
+          "concept": "Disjonction",
+          "options": [
+            "Vrai",
+            "Faux"
+          ],
+          "explanation": "Vrai. La disjonction (OU) n’a besoin que d’une partie vraie ; elle n’est donc fausse que lorsque les deux le sont."
+        }
+      }
+    },
+    {
+      "prompt": "Observe a tabela-verdade. Em quantas linhas a coluna P ∧ Q é verdadeira?",
+      "concept": "Tabela-verdade",
+      "imageUrl": "/img/truth-table.svg",
+      "imageAlt": "Tabela-verdade das variáveis P e Q com as colunas P E Q e P OU Q",
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "correctIndex": 1,
+      "explanation": "Somente na primeira linha (P = V e Q = V) a conjunção é verdadeira. Nas outras três, pelo menos uma das entradas é falsa.",
+      "translations": {
+        "en": {
+          "prompt": "Look at the truth table. In how many rows is the P ∧ Q column true?",
+          "concept": "Truth table",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "explanation": "Only in the first row (P = T and Q = T) is the conjunction true. In the other three, at least one input is false.",
+          "imageUrl": "/img/en/truth-table.svg",
+          "imageAlt": "Truth table of variables P and Q with the columns P AND Q and P OR Q"
+        },
+        "es": {
+          "prompt": "Observa la tabla de verdad. ¿En cuántas filas la columna P ∧ Q es verdadera?",
+          "concept": "Tabla de verdad",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "explanation": "Solo en la primera fila (P = V y Q = V) la conjunción es verdadera. En las otras tres, al menos una entrada es falsa.",
+          "imageUrl": "/img/es/truth-table.svg",
+          "imageAlt": "Tabla de verdad de las variables P y Q con las columnas P Y Q y P O Q"
+        },
+        "fr": {
+          "prompt": "Observez la table de vérité. Dans combien de lignes la colonne P ∧ Q est-elle vraie ?",
+          "concept": "Table de vérité",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "explanation": "Seulement à la première ligne (P = V et Q = V) la conjonction est vraie. Dans les trois autres, au moins une entrée est fausse.",
+          "imageUrl": "/img/fr/truth-table.svg",
+          "imageAlt": "Table de vérité des variables P et Q avec les colonnes P ET Q et P OU Q"
+        }
+      }
+    },
+    {
+      "prompt": "A imagem mostra a porta NÃO (NOT). Se a entrada P for verdadeira, qual é a saída ¬P?",
+      "concept": "Negação",
+      "imageUrl": "/img/not-gate.svg",
+      "imageAlt": "Porta lógica NOT com entrada P e saída ¬P",
+      "options": [
+        "Verdadeira",
+        "Falsa",
+        "Igual a P",
+        "Depende de outra entrada"
+      ],
+      "correctIndex": 1,
+      "explanation": "A negação inverte o valor lógico: se P é verdadeira, ¬P é falsa. A porta NÃO tem uma única entrada.",
+      "translations": {
+        "en": {
+          "prompt": "The image shows the NOT gate. If input P is true, what is the output ¬P?",
+          "concept": "Negation",
+          "options": [
+            "True",
+            "False",
+            "Same as P",
+            "It depends on another input"
+          ],
+          "explanation": "Negation inverts the logical value: if P is true, ¬P is false. The NOT gate has a single input.",
+          "imageUrl": "/img/en/not-gate.svg",
+          "imageAlt": "NOT logic gate with input P and output ¬P"
+        },
+        "es": {
+          "prompt": "La imagen muestra la compuerta NO (NOT). Si la entrada P es verdadera, ¿cuál es la salida ¬P?",
+          "concept": "Negación",
+          "options": [
+            "Verdadera",
+            "Falsa",
+            "Igual a P",
+            "Depende de otra entrada"
+          ],
+          "explanation": "La negación invierte el valor lógico: si P es verdadera, ¬P es falsa. La compuerta NO tiene una sola entrada.",
+          "imageUrl": "/img/es/not-gate.svg",
+          "imageAlt": "Compuerta lógica NOT con entrada P y salida ¬P"
+        },
+        "fr": {
+          "prompt": "L’image montre la porte NON (NOT). Si l’entrée P est vraie, quelle est la sortie ¬P ?",
+          "concept": "Négation",
+          "options": [
+            "Vraie",
+            "Fausse",
+            "Identique à P",
+            "Cela dépend d’une autre entrée"
+          ],
+          "explanation": "La négation inverse la valeur logique : si P est vraie, ¬P est fausse. La porte NON n’a qu’une seule entrée.",
+          "imageUrl": "/img/fr/not-gate.svg",
+          "imageAlt": "Porte logique NOT avec l’entrée P et la sortie ¬P"
+        }
+      }
+    },
+    {
+      "prompt": "A bicondicional P ↔ Q (P se e somente se Q) é verdadeira quando:",
+      "concept": "Bicondicional",
+      "options": [
+        "P e Q têm o mesmo valor lógico",
+        "P é verdadeiro e Q é falso",
+        "Pelo menos um deles é verdadeiro",
+        "P e Q são sempre falsos"
+      ],
+      "correctIndex": 0,
+      "explanation": "A bicondicional é verdadeira quando os dois lados concordam: ambos verdadeiros ou ambos falsos.",
+      "translations": {
+        "en": {
+          "prompt": "The biconditional P ↔ Q (P if and only if Q) is true when:",
+          "concept": "Biconditional",
+          "options": [
+            "P and Q have the same logical value",
+            "P is true and Q is false",
+            "At least one of them is true",
+            "P and Q are always false"
+          ],
+          "explanation": "The biconditional is true when both sides agree: both true or both false."
+        },
+        "es": {
+          "prompt": "La bicondicional P ↔ Q (P si y solo si Q) es verdadera cuando:",
+          "concept": "Bicondicional",
+          "options": [
+            "P y Q tienen el mismo valor lógico",
+            "P es verdadero y Q es falso",
+            "Al menos uno de ellos es verdadero",
+            "P y Q son siempre falsos"
+          ],
+          "explanation": "La bicondicional es verdadera cuando ambos lados coinciden: los dos verdaderos o los dos falsos."
+        },
+        "fr": {
+          "prompt": "Le biconditionnel P ↔ Q (P si et seulement si Q) est vrai lorsque :",
+          "concept": "Biconditionnel",
+          "options": [
+            "P et Q ont la même valeur logique",
+            "P est vrai et Q est faux",
+            "Au moins l’un des deux est vrai",
+            "P et Q sont toujours faux"
+          ],
+          "explanation": "Le biconditionnel est vrai lorsque les deux côtés concordent : tous deux vrais ou tous deux faux."
+        }
+      }
+    },
+    {
+      "prompt": "Com P = V, Q = F e R = V, qual é o valor de (P ∧ Q) ∨ R?",
+      "concept": "Expressões compostas",
+      "options": [
+        "Verdadeiro",
+        "Falso",
+        "Indefinido",
+        "Depende da ordem das variáveis",
+        "Verdadeiro e falso ao mesmo tempo",
+        "Nenhuma das anteriores"
+      ],
+      "correctIndex": 0,
+      "explanation": "Primeiro os parênteses: P ∧ Q = V ∧ F = F. Depois a disjunção: F ∨ R = F ∨ V = V.",
+      "translations": {
+        "en": {
+          "prompt": "With P = T, Q = F and R = T, what is the value of (P ∧ Q) ∨ R?",
+          "concept": "Compound expressions",
+          "options": [
+            "True",
+            "False",
+            "Undefined",
+            "It depends on the order of the variables",
+            "True and false at the same time",
+            "None of the above"
+          ],
+          "explanation": "Parentheses first: P ∧ Q = T ∧ F = F. Then the disjunction: F ∨ R = F ∨ T = T."
+        },
+        "es": {
+          "prompt": "Con P = V, Q = F y R = V, ¿cuál es el valor de (P ∧ Q) ∨ R?",
+          "concept": "Expresiones compuestas",
+          "options": [
+            "Verdadero",
+            "Falso",
+            "Indefinido",
+            "Depende del orden de las variables",
+            "Verdadero y falso al mismo tiempo",
+            "Ninguna de las anteriores"
+          ],
+          "explanation": "Primero los paréntesis: P ∧ Q = V ∧ F = F. Luego la disyunción: F ∨ R = F ∨ V = V."
+        },
+        "fr": {
+          "prompt": "Avec P = V, Q = F et R = V, quelle est la valeur de (P ∧ Q) ∨ R ?",
+          "concept": "Expressions composées",
+          "options": [
+            "Vrai",
+            "Faux",
+            "Indéfini",
+            "Cela dépend de l’ordre des variables",
+            "Vrai et faux en même temps",
+            "Aucune des réponses précédentes"
+          ],
+          "explanation": "D’abord les parenthèses : P ∧ Q = V ∧ F = F. Ensuite la disjonction : F ∨ R = F ∨ V = V."
+        }
+      }
+    },
+    {
+      "prompt": "Uma tautologia é uma proposição que:",
+      "concept": "Tautologia",
+      "options": [
+        "É sempre verdadeira, para quaisquer valores das variáveis",
+        "É sempre falsa",
+        "Pode ser verdadeira ou falsa, dependendo dos valores"
+      ],
+      "correctIndex": 0,
+      "explanation": "Tautologia é sempre verdadeira, como P ∨ ¬P. A sempre falsa é a contradição; a que varia é a contingência.",
+      "translations": {
+        "en": {
+          "prompt": "A tautology is a proposition that:",
+          "concept": "Tautology",
+          "options": [
+            "Is always true, for any values of the variables",
+            "Is always false",
+            "Can be true or false depending on the values"
+          ],
+          "explanation": "A tautology is always true, like P ∨ ¬P. The always-false one is a contradiction; the one that varies is a contingency."
+        },
+        "es": {
+          "prompt": "Una tautología es una proposición que:",
+          "concept": "Tautología",
+          "options": [
+            "Es siempre verdadera, para cualquier valor de las variables",
+            "Es siempre falsa",
+            "Puede ser verdadera o falsa según los valores"
+          ],
+          "explanation": "Una tautología es siempre verdadera, como P ∨ ¬P. La siempre falsa es la contradicción; la que varía es la contingencia."
+        },
+        "fr": {
+          "prompt": "Une tautologie est une proposition qui :",
+          "concept": "Tautologie",
+          "options": [
+            "Est toujours vraie, quelles que soient les valeurs des variables",
+            "Est toujours fausse",
+            "Peut être vraie ou fausse selon les valeurs"
+          ],
+          "explanation": "Une tautologie est toujours vraie, comme P ∨ ¬P. Celle qui est toujours fausse est une contradiction ; celle qui varie est une contingence."
+        }
+      }
+    },
+    {
+      "prompt": "Verdadeiro ou falso: ¬(P ∨ Q) é equivalente a ¬P ∧ ¬Q.",
+      "concept": "Leis de De Morgan",
+      "options": [
+        "Verdadeiro",
+        "Falso"
+      ],
+      "correctIndex": 0,
+      "explanation": "Verdadeiro. Pela Lei de De Morgan, negar uma disjunção resulta na conjunção das negações.",
+      "translations": {
+        "en": {
+          "prompt": "True or false: ¬(P ∨ Q) is equivalent to ¬P ∧ ¬Q.",
+          "concept": "De Morgan’s laws",
+          "options": [
+            "True",
+            "False"
+          ],
+          "explanation": "True. By De Morgan’s law, negating a disjunction gives the conjunction of the negations."
+        },
+        "es": {
+          "prompt": "Verdadero o falso: ¬(P ∨ Q) es equivalente a ¬P ∧ ¬Q.",
+          "concept": "Leyes de De Morgan",
+          "options": [
+            "Verdadero",
+            "Falso"
+          ],
+          "explanation": "Verdadero. Por la ley de De Morgan, negar una disyunción da la conjunción de las negaciones."
+        },
+        "fr": {
+          "prompt": "Vrai ou faux : ¬(P ∨ Q) est équivalent à ¬P ∧ ¬Q.",
+          "concept": "Lois de De Morgan",
+          "options": [
+            "Vrai",
+            "Faux"
+          ],
+          "explanation": "Vrai. D’après la loi de De Morgan, nier une disjonction donne la conjonction des négations."
+        }
+      }
+    }
+  ]
+}

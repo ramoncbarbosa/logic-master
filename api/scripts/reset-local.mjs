@@ -9,7 +9,8 @@ const run = (cmd, args, env = {}) =>
 
 rmSync(path.join(root, '.wrangler/state'), { recursive: true, force: true })
 run('pnpm', ['--filter', 'api', 'db:migrate:local'])
-console.log('✔ Banco local recriado com o quiz de exemplo.')
+run('node', ['api/scripts/content.mjs'])
+console.log('✔ Banco local recriado com os quizzes de content/quizzes.')
 
 const varsFile = path.join(root, 'api/.dev.vars')
 const vars = existsSync(varsFile)

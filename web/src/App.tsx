@@ -10,6 +10,7 @@ import NotFound from './pages/NotFound'
 import Login from './pages/admin/Login'
 import { Skeleton } from './components/ui/skeleton'
 
+const QuizPrint = lazy(() => import('./pages/QuizPrint'))
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'))
 const QuizEditor = lazy(() => import('./pages/admin/QuizEditor'))
 const QuizStats = lazy(() => import('./pages/admin/QuizStats'))
@@ -21,6 +22,14 @@ export default function App() {
         <Route index element={<Home />} />
         <Route path="quiz/:slug" element={<QuizPlay />} />
         <Route path="quiz/:slug/ranking" element={<Ranking />} />
+        <Route
+          path="quiz/:slug/imprimir"
+          element={
+            <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+              <QuizPrint />
+            </Suspense>
+          }
+        />
         <Route path="sobre" element={<Navigate to="/" replace />} />
         <Route path="privacidade" element={<Privacy />} />
         <Route path="admin/login" element={<Login />} />

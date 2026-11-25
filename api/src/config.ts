@@ -18,3 +18,9 @@ export const allowedEmailDomains = (env: Bindings) =>
     .split(',')
     .map((d) => d.trim().toLowerCase())
     .filter(Boolean)
+
+export const RESOURCE_AUTHORS = ['Ramon Castro Barbosa', 'Maíra Bastos David de Assis']
+export const REPOSITORY_URL = 'https://github.com/ramoncbarbosa/logic-master'
+export const LICENSE_URL = 'https://creativecommons.org/licenses/by-nc-sa/4.0/'
+export const EXPORT_FORMAT = 'logic-master-quiz'
+export const EXPORT_VERSION = 1

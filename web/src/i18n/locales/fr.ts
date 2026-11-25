@@ -103,6 +103,29 @@ const fr: Translation = {
     preparing: 'Préparation…',
     start: 'Commencer le quiz',
     viewRanking: 'Voir le classement',
+    print: 'Version imprimable',
+    download: 'Télécharger le quiz (JSON)',
+    downloadAria: 'Télécharger le contenu de {{title}} en JSON',
+  },
+  citation: {
+    title: 'Comment citer',
+    copy: 'Copier',
+    copied: 'Référence copiée',
+    copyError: 'Impossible de copier. Sélectionnez le texte et copiez-le manuellement.',
+    resourceType: 'Ressource éducative libre, quiz interactif',
+    licenseText:
+      'Ressource Éducative Libre sous licence {{license}} : vous pouvez l’utiliser, l’adapter et la partager, à condition de citer la source, de ne pas en faire un usage commercial et de conserver la même licence.',
+  },
+  print: {
+    docTitle: '{{title}} — version imprimable',
+    back: 'Retour au quiz',
+    print: 'Imprimer ou enregistrer en PDF',
+    withAnswers: 'Inclure le corrigé commenté',
+    audience: 'Public visé',
+    objective: 'Objectif',
+    questions: 'Questions',
+    answers: 'Corrigé commenté',
+    answer: 'Réponse {{letter}} : {{option}}',
   },
   ready: {
     title: 'C’est parti, {{name}} !',
@@ -244,6 +267,11 @@ const fr: Translation = {
     deleteText_other:
       'Le quiz, ses questions et ses {{count}} tentatives enregistrées seront supprimés définitivement. Cette action est irréversible.',
     deleted: 'Quiz supprimé',
+    import: 'Importer un quiz',
+    importing: 'Importation…',
+    importInvalid: 'Fichier invalide. Choisissez un JSON exporté par Logic Master.',
+    imported: 'Quiz importé comme brouillon ({{slug}}). Relisez-le et publiez-le quand vous voulez.',
+    export: 'Télécharger {{title}} en JSON',
   },
   editor: {
     docNew: 'Nouveau quiz',

@@ -31,10 +31,10 @@ export default function Layout() {
   const { t } = useTranslation()
   return (
     <div className="app-bg flex min-h-dvh flex-col overflow-x-clip">
-      <a href="#conteudo" className="skip-link">
+      <a href="#conteudo" className="skip-link print:hidden">
         {t('nav.skip')}
       </a>
-      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/75 backdrop-blur-md">
+      <header className="sticky top-0 z-40 print:hidden border-b border-border/60 bg-background/75 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-3">
           <Link to="/" className="mr-auto flex min-w-0 items-center gap-2.5 font-semibold tracking-tight" aria-label={t('nav.home')}>
             <LogoMark className="shrink-0" />
@@ -60,7 +60,7 @@ export default function Layout() {
         </div>
       </header>
 
-      <main id="conteudo" className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:py-10" tabIndex={-1}>
+      <main id="conteudo" className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:py-10 print:max-w-none print:p-0" tabIndex={-1}>
         <Outlet />
       </main>
     </div>

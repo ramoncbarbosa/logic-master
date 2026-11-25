@@ -8,9 +8,11 @@ import {
   CheckCircle2,
   CircleHelp,
   Clock,
+  FileJson,
   Lightbulb,
   ListChecks,
   Play,
+  Printer,
   RotateCcw,
   Square,
   Target,
@@ -43,7 +45,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { LogoMark } from '@/components/Layout'
 import ConsentText from '@/components/ConsentText'
+import QuizCitation from '@/components/QuizCitation'
 import RankingTable from '@/components/RankingTable'
+import { learningResource, useJsonLd } from '@/lib/citation'
 import SusSurvey from '@/components/SusSurvey'
 import { cn } from '@/lib/utils'
 
@@ -163,7 +167,7 @@ export default function QuizPlay() {
 }
 
 function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConfig; onStart: (attemptId: string, name: string) => void }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [consent, setConsent] = useState(false)
@@ -174,6 +178,26 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
   const domainList = domains.map((d) => `@${d}`).join(', ')
   const concepts = useMemo(() => [...new Set(quiz.questions.map((q) => q.concept).filter(Boolean))], [quiz])
   const minutes = Math.max(1, Math.round((quiz.questions.length * 45) / 60))
+  const pageUrl = `${window.location.origin}/quiz/${quiz.slug}`
+  const year = new Date(quiz.createdAt.replace(' ', 'T') + 'Z').getFullYear() || new Date().getFullYear()
+
+  useJsonLd(
+    'quiz-jsonld',
+    learningResource({
+      name: quiz.title,
+      description: quiz.description,
+      url: pageUrl,
+      inLanguage: languageTag(i18n.language),
+      audience: quiz.audience,
+      teaches: concepts,
+      authors: config.authors,
+      license: quiz.license,
+      licenseUrl: config.licenseUrl,
+      downloadUrl: `${window.location.origin}${api.exportUrl(quiz.slug)}`,
+      dateCreated: quiz.createdAt,
+      dateModified: quiz.updatedAt,
+    }),
+  )
 
   useEffect(() => runTourOnce('intro', 900), [])
 
@@ -214,6 +238,16 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
               <Link to={`/quiz/${quiz.slug}/ranking`}>
                 <Trophy aria-hidden /> {t('intro.viewRanking')}
               </Link>
+            </Button>
+            <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
+              <Link to={`/quiz/${quiz.slug}/imprimir`}>
+                <Printer aria-hidden /> {t('intro.print')}
+              </Link>
+            </Button>
+            <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
+              <a href={api.exportUrl(quiz.slug)} download={`${quiz.slug}.json`} aria-label={t('intro.downloadAria', { title: quiz.title })}>
+                <FileJson aria-hidden /> {t('intro.download')}
+              </a>
             </Button>
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-balance sm:text-4xl">{quiz.title}</h1>
@@ -261,6 +295,15 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
             />
           </div>
         )}
+
+        <QuizCitation
+          title={quiz.title}
+          year={year}
+          authors={config.authors}
+          license={quiz.license}
+          licenseUrl={config.licenseUrl}
+          url={pageUrl}
+        />
       </section>
 
       <Card className="min-w-0 shadow-lg shadow-primary/5">

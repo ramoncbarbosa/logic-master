@@ -11,7 +11,7 @@ La idea es simple: que los estudiantes practiquen lógica computacional por medi
 
 ## Cómo funciona para quien estudia
 
-Hay cuatro quizzes, en una secuencia que va de los fundamentos a las tablas de verdad, las estructuras condicionales y los bucles. Tres de ellos empiezan con un video de apoyo, que cambia según el idioma elegido.
+Hay cuatro quizzes, en una secuencia que va de los fundamentos a las tablas de verdad, las estructuras condicionales y los bucles. Cada quiz también se puede descargar en JSON o abrir en una versión para imprimir, con solucionario comentado, y trae un bloque **Cómo citar** con la referencia lista.
 
 Eliges un quiz, escribes tu nombre y tu correo y lees el término de uso de los datos. Las preguntas aparecen una por pantalla. Algunas muestran compuertas lógicas, tablas de verdad o diagramas de flujo; otras traen pseudocódigo para que hagas la prueba de escritorio; también hay preguntas de verdadero o falso y otras con hasta seis opciones. En cuanto confirmas la respuesta, aparece la explicación del razonamiento, aciertes o no.
 
@@ -27,6 +27,7 @@ El docente tiene un área propia, con inicio de sesión, donde puede:
 - ver en gráficos qué preguntas falló más el grupo y qué opciones incorrectas se eligieron más, lo que suele revelar la confusión detrás del error;
 - seguir el desempeño por concepto y por día;
 - ver en un globo desde dónde respondieron los estudiantes;
+- importar y exportar quizzes en JSON, para llevar el contenido de una instalación a otra;
 - consultar la lista de participantes y exportarlo todo en CSV;
 - seguir la evaluación de usabilidad (cuestionario SUS) que los estudiantes responden al final del quiz, con nota promedio, clasificación, gráficos, comentarios y exportación en CSV.
 
@@ -40,6 +41,12 @@ Todo funciona en Cloudflare, en el plan gratuito:
 
 La API no tiene dirección pública: solo el Worker del sitio se comunica con ella. Por eso no es posible falsificar la IP ni la ubicación de quien responde. Además, el proyecto tiene límite de solicitudes por IP, bloqueo tras varias contraseñas incorrectas y cabeceras de seguridad, y los datos personales se anonimizan automáticamente después de 180 días.
 
+## Dónde está el contenido
+
+El contenido de los quizzes está en [`content/quizzes/`](content/quizzes), un archivo JSON por quiz, en el mismo formato del botón **Descargar quiz**. Las migraciones solo crean las tablas; la base de datos se llena a partir de estos archivos con `pnpm content:seed` (local) o `pnpm content:seed --remote` (producción). El comando solo agrega los quizzes que todavía no están en la base, así que se puede ejecutar más de una vez.
+
+Las imágenes de las preguntas están en `web/public/img` y se hicieron para este proyecto, bajo la misma licencia.
+
 ## Ejecutarlo en tu computadora
 
 Necesitarás Node 22 o superior y [pnpm](https://pnpm.io).
@@ -52,7 +59,7 @@ pnpm db:reset:local
 pnpm preview
 ```
 
-El sitio se abre en http://localhost:8787. `db:reset:local` crea la base de datos con los cuatro quizzes y una cuenta de docente de prueba, definida en `.dev.vars`. En la pantalla de inicio de sesión, el botón **Usar cuenta de prueba** completa los datos por ti.
+El sitio se abre en http://localhost:8787. `db:reset:local` crea la base de datos con los cuatro quizzes de `content/quizzes` y una cuenta de docente de prueba, definida en `.dev.vars`. En la pantalla de inicio de sesión, el botón **Usar cuenta de prueba** completa los datos por ti.
 
 Si vas a trabajar en la interfaz, ejecuta `pnpm dev:api` y `pnpm dev:web` en dos terminales para tener recarga automática.
 
@@ -67,6 +74,7 @@ El proyecto es abierto justamente para que otros docentes puedan usarlo y adapta
 
    ```bash
    pnpm db:migrate:remote
+   pnpm content:seed --remote
    pnpm --filter api exec wrangler secret put JWT_SECRET
    pnpm run deploy
    ```

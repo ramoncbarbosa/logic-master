@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { BarChart3, ExternalLink, LogOut, Pencil, Plus, Trash2 } from 'lucide-react'
+import { BarChart3, Download, ExternalLink, FileUp, LogOut, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api, type Owner, type QuizMeta } from '@/lib/api'
 import { formatPercent } from '@/lib/format'
@@ -41,6 +41,31 @@ export default function Dashboard() {
     navigate('/admin/login')
   }
 
+  const fileInput = useRef<HTMLInputElement>(null)
+  const [importing, setImporting] = useState(false)
+
+  async function importFile(ev: ChangeEvent<HTMLInputElement>) {
+    const file = ev.target.files?.[0]
+    ev.target.value = ''
+    if (!file) return
+    let data: unknown
+    try {
+      data = JSON.parse(await file.text())
+    } catch {
+      return toast.error(t('dashboard.importInvalid'))
+    }
+    setImporting(true)
+    try {
+      const { id, slug } = await api.admin.importQuiz(data)
+      toast.success(t('dashboard.imported', { slug }))
+      navigate(`/admin/quiz/${id}/editar`)
+    } catch (e) {
+      toast.error((e as Error).message)
+    } finally {
+      setImporting(false)
+    }
+  }
+
   async function remove(q: QuizMeta) {
     try {
       await api.admin.deleteQuiz(q.id)
@@ -63,6 +88,10 @@ export default function Dashboard() {
             <Plus aria-hidden /> {t('dashboard.newQuiz')}
           </Link>
         </Button>
+        <Button variant="outline" onClick={() => fileInput.current?.click()} disabled={importing}>
+          <FileUp aria-hidden /> {importing ? t('dashboard.importing') : t('dashboard.import')}
+        </Button>
+        <input ref={fileInput} type="file" accept="application/json,.json" className="hidden" onChange={importFile} />
         <Button variant="outline" onClick={logout}>
           <LogOut aria-hidden /> {t('dashboard.logout')}
         </Button>
@@ -161,6 +190,11 @@ function QuizActions({ quiz: q, onDelete, stretch = false }: { quiz: QuizMeta; o
         <Link to={`/admin/quiz/${q.id}/editar`} aria-label={t('dashboard.edit', { title: q.title })}>
           <Pencil aria-hidden />
         </Link>
+      </Button>
+      <Button size="icon" variant="outline" asChild className={stretch ? 'size-10' : undefined}>
+        <a href={api.admin.exportUrl(q.id)} download={`${q.slug}.json`} aria-label={t('dashboard.export', { title: q.title })}>
+          <Download aria-hidden />
+        </a>
       </Button>
       {q.published && (
         <Button size="icon" variant="outline" asChild className={stretch ? 'size-10' : undefined}>

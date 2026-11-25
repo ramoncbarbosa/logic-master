@@ -103,6 +103,29 @@ const en: Translation = {
     preparing: 'Getting ready…',
     start: 'Start quiz',
     viewRanking: 'View leaderboard',
+    print: 'Printable version',
+    download: 'Download quiz (JSON)',
+    downloadAria: 'Download the content of {{title}} as JSON',
+  },
+  citation: {
+    title: 'How to cite',
+    copy: 'Copy',
+    copied: 'Reference copied',
+    copyError: 'Could not copy. Select the text and copy it manually.',
+    resourceType: 'Open educational resource, interactive quiz',
+    licenseText:
+      'Open Educational Resource under the {{license}} license: you may use, adapt and share it, as long as you credit the source, do not use it for commercial purposes and keep the same license.',
+  },
+  print: {
+    docTitle: '{{title}} — printable version',
+    back: 'Back to the quiz',
+    print: 'Print or save as PDF',
+    withAnswers: 'Include answer key with explanations',
+    audience: 'Audience',
+    objective: 'Objective',
+    questions: 'Questions',
+    answers: 'Answer key with explanations',
+    answer: 'Answer {{letter}}: {{option}}',
   },
   ready: {
     title: 'All set, {{name}}!',
@@ -244,6 +267,11 @@ const en: Translation = {
     deleteText_other:
       'The quiz, its questions and all {{count}} recorded attempts will be permanently deleted. This cannot be undone.',
     deleted: 'Quiz deleted',
+    import: 'Import quiz',
+    importing: 'Importing…',
+    importInvalid: 'Invalid file. Choose a JSON exported by Logic Master.',
+    imported: 'Quiz imported as a draft ({{slug}}). Review it and publish whenever you like.',
+    export: 'Download {{title}} as JSON',
   },
   editor: {
     docNew: 'New quiz',

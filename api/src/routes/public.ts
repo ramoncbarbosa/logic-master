@@ -1,8 +1,9 @@
 import { Hono } from 'hono'
-import { CONSENT_VERSION, allowedEmailDomains } from '../config'
+import { CONSENT_VERSION, LICENSE_URL, REPOSITORY_URL, RESOURCE_AUTHORS, allowedEmailDomains } from '../config'
 import { LOCALES, fail } from '../lib/i18n'
 import { toPublicQuestion, toQuizMeta } from '../lib/mappers'
 import { getLocalizedQuestions, localizedQuizSql } from '../services/content'
+import { buildQuizExport, exportHeaders } from '../services/export'
 import { quizRanking } from '../services/ranking'
 import type { AppEnv, QuizRow } from '../types'
 
@@ -11,7 +12,14 @@ export const publicRoutes = new Hono<AppEnv>()
 publicRoutes.get('/health', (c) => c.json({ ok: true }))
 
 publicRoutes.get('/config', (c) =>
-  c.json({ allowedEmailDomains: allowedEmailDomains(c.env), consentVersion: CONSENT_VERSION, locales: LOCALES }),
+  c.json({
+    allowedEmailDomains: allowedEmailDomains(c.env),
+    consentVersion: CONSENT_VERSION,
+    locales: LOCALES,
+    authors: RESOURCE_AUTHORS,
+    repository: REPOSITORY_URL,
+    licenseUrl: LICENSE_URL,
+  }),
 )
 
 publicRoutes.get('/quizzes', async (c) => {
@@ -43,6 +51,15 @@ publicRoutes.get('/quizzes/:slug', async (c) => {
   if (!quiz) return fail(c, 404, 'quizNotFound')
   const questions = await getLocalizedQuestions(c.env.DB, quiz.id, locale)
   return c.json({ ...toQuizMeta(quiz), questions: questions.map(toPublicQuestion) })
+})
+
+publicRoutes.get('/quizzes/:slug/export.json', async (c) => {
+  const quiz = await c.env.DB.prepare('SELECT * FROM quizzes WHERE slug = ? AND published = 1')
+    .bind(c.req.param('slug'))
+    .first<QuizRow>()
+  if (!quiz) return fail(c, 404, 'quizNotFound')
+  const data = await buildQuizExport(c.env.DB, quiz, new URL(c.req.url).origin)
+  return c.body(JSON.stringify(data, null, 2), 200, exportHeaders(quiz.slug))
 })
 
 publicRoutes.get('/quizzes/:slug/ranking', async (c) => {

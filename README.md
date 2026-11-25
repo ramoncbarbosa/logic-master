@@ -11,7 +11,7 @@ A ideia é simples: permitir que os alunos pratiquem lógica computacional por m
 
 ## Como funciona para quem estuda
 
-Hoje são quatro quizzes, numa sequência que vai dos fundamentos às tabelas-verdade, às estruturas condicionais e aos laços de repetição. Três deles começam com uma videoaula de apoio, que muda conforme o idioma escolhido.
+Hoje são quatro quizzes, numa sequência que vai dos fundamentos às tabelas-verdade, às estruturas condicionais e aos laços de repetição. Cada quiz também pode ser baixado em JSON ou aberto numa versão para impressão, com gabarito comentado, e traz um bloco **Como citar** com a referência pronta.
 
 Você escolhe um quiz, informa nome e e-mail e lê o termo de uso dos dados. As questões aparecem uma por tela. Algumas trazem portas lógicas, tabelas-verdade ou fluxogramas; outras trazem pseudocódigo para você fazer o teste de mesa; há também questões de verdadeiro ou falso e outras com até seis alternativas. Assim que você confirma a resposta, aparece a explicação do raciocínio, certo ou errado.
 
@@ -28,6 +28,7 @@ O professor entra numa área própria, com login, onde pode:
 - ver em gráficos quais questões a turma mais errou e quais alternativas erradas foram mais escolhidas, o que costuma revelar a confusão por trás do erro;
 - acompanhar o desempenho por conceito e por dia;
 - ver num globo de onde os alunos responderam;
+- importar e exportar quizzes em JSON, para levar o conteúdo de uma instalação para outra;
 - consultar a lista de participantes e exportar tudo em CSV;
 - acompanhar a avaliação de usabilidade (questionário SUS) que os alunos respondem ao final do quiz, com nota média, classificação, gráficos, comentários e exportação em CSV.
 
@@ -41,6 +42,12 @@ Tudo roda na Cloudflare, no plano gratuito:
 
 A API não tem endereço público: só o Worker do site conversa com ela. Por isso não dá para forjar o IP ou a localização de quem responde, para além disso o projeto também tem limite de requisições por IP, bloqueio depois de várias senhas erradas e cabeçalhos de segurança, e os dados pessoais são anonimizados automaticamente depois de 180 dias.
 
+## Onde fica o conteúdo
+
+O conteúdo dos quizzes fica em [`content/quizzes/`](content/quizzes), um arquivo JSON por quiz, no mesmo formato do botão **Baixar quiz**. As migrations criam só as tabelas; o banco é preenchido a partir desses arquivos com `pnpm content:seed` (local) ou `pnpm content:seed --remote` (produção). O comando só adiciona os quizzes que ainda não existem no banco, então pode ser rodado mais de uma vez.
+
+As imagens das questões ficam em `web/public/img` e foram feitas para este projeto, sob a mesma licença.
+
 ## Rodando na sua máquina
 
 Você vai precisar do Node 22 ou mais novo e do [pnpm](https://pnpm.io).
@@ -53,7 +60,7 @@ pnpm db:reset:local
 pnpm preview
 ```
 
-O site abre em http://localhost:8787. O `db:reset:local` cria o banco com os quatro quizzes e uma conta de professor de teste, definida no `.dev.vars`. Na tela de login, o botão **Usar conta de teste** já preenche os dados.
+O site abre em http://localhost:8787. O `db:reset:local` cria o banco com os quatro quizzes de `content/quizzes` e uma conta de professor de teste, definida no `.dev.vars`. Na tela de login, o botão **Usar conta de teste** já preenche os dados.
 
 Se for mexer no visual, rode `pnpm dev:api` e `pnpm dev:web` em dois terminais para ter recarregamento automático.
 
@@ -68,6 +75,7 @@ O projeto é aberto justamente para que outros professores possam usá-lo e adap
 
    ```bash
    pnpm db:migrate:remote
+   pnpm content:seed --remote
    pnpm --filter api exec wrangler secret put JWT_SECRET
    pnpm run deploy
    ```

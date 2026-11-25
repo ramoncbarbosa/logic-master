@@ -1,0 +1,655 @@
+{
+  "format": "logic-master-quiz",
+  "version": 1,
+  "authors": [
+    "Ramon Castro Barbosa",
+    "Maíra Bastos David de Assis"
+  ],
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "source": "https://logic-master-web.ramon-cs-barbosa.workers.dev/quiz/fundamentos-logica-computacional",
+  "repository": "https://github.com/ramoncbarbosa/logic-master",
+  "slug": "fundamentos-logica-computacional",
+  "title": "Fundamentos de Lógica Computacional",
+  "description": "Quiz interativo com feedback imediato sobre proposições, conectivos lógicos, tabelas-verdade, fluxogramas, estruturas condicionais e de repetição.",
+  "audience": "Ensino Médio Técnico / Educação Profissional e 1º período do Ensino Superior em Computação",
+  "objective": "Avaliar proposições e expressões booleanas, construir o raciocínio de tabelas-verdade e prever a saída de algoritmos simples com decisão e repetição (teste de mesa).",
+  "translations": {
+    "en": {
+      "title": "Fundamentals of Computational Logic",
+      "description": "Interactive quiz with instant feedback on propositions, logical connectives, truth tables, flowcharts, conditional structures and loops.",
+      "audience": "Technical high school / vocational education and first-year Computing undergraduates",
+      "objective": "Evaluate propositions and boolean expressions, reason with truth tables and predict the output of simple algorithms with decisions and loops (desk checking)."
+    },
+    "es": {
+      "title": "Fundamentos de Lógica Computacional",
+      "description": "Quiz interactivo con retroalimentación inmediata sobre proposiciones, conectores lógicos, tablas de verdad, diagramas de flujo, estructuras condicionales y de repetición.",
+      "audience": "Educación media técnica / formación profesional y primer semestre de la carrera de Computación",
+      "objective": "Evaluar proposiciones y expresiones booleanas, razonar con tablas de verdad y predecir la salida de algoritmos simples con decisiones y repeticiones (prueba de escritorio)."
+    },
+    "fr": {
+      "title": "Fondamentaux de la logique informatique",
+      "description": "Quiz interactif avec retour immédiat sur les propositions, les connecteurs logiques, les tables de vérité, les organigrammes, les structures conditionnelles et les boucles.",
+      "audience": "Lycée technique / formation professionnelle et première année de licence en informatique",
+      "objective": "Évaluer des propositions et des expressions booléennes, raisonner avec des tables de vérité et prévoir la sortie d’algorithmes simples avec décisions et boucles (exécution pas à pas)."
+    }
+  },
+  "questions": [
+    {
+      "prompt": "Qual das alternativas abaixo é uma proposição lógica?",
+      "concept": "Proposições",
+      "options": [
+        "Que horas são?",
+        "Feche a porta!",
+        "7 é um número primo.",
+        "x + 2"
+      ],
+      "correctIndex": 2,
+      "explanation": "Proposição é uma sentença declarativa que pode ser classificada como verdadeira ou falsa, mas não ambas. Perguntas, ordens e expressões abertas (como x + 2) não são proposições.",
+      "translations": {
+        "en": {
+          "prompt": "Which of the options below is a logical proposition?",
+          "concept": "Propositions",
+          "options": [
+            "What time is it?",
+            "Close the door!",
+            "7 is a prime number.",
+            "x + 2"
+          ],
+          "explanation": "A proposition is a declarative sentence that can be classified as either true or false, but not both. Questions, commands and open expressions (like x + 2) are not propositions."
+        },
+        "es": {
+          "prompt": "¿Cuál de las opciones siguientes es una proposición lógica?",
+          "concept": "Proposiciones",
+          "options": [
+            "¿Qué hora es?",
+            "¡Cierra la puerta!",
+            "7 es un número primo.",
+            "x + 2"
+          ],
+          "explanation": "Una proposición es una oración declarativa que puede clasificarse como verdadera o falsa, pero no ambas. Las preguntas, las órdenes y las expresiones abiertas (como x + 2) no son proposiciones."
+        },
+        "fr": {
+          "prompt": "Laquelle des réponses ci-dessous est une proposition logique ?",
+          "concept": "Propositions",
+          "options": [
+            "Quelle heure est-il ?",
+            "Ferme la porte !",
+            "7 est un nombre premier.",
+            "x + 2"
+          ],
+          "explanation": "Une proposition est une phrase déclarative qui peut être classée comme vraie ou fausse, mais pas les deux. Les questions, les ordres et les expressions ouvertes (comme x + 2) ne sont pas des propositions."
+        }
+      }
+    },
+    {
+      "prompt": "Observe a porta lógica E (AND). Se P = Verdadeiro e Q = Falso, qual é o valor de P ∧ Q?",
+      "concept": "Conectivos lógicos",
+      "imageUrl": "/img/and-gate.svg",
+      "imageAlt": "Porta lógica AND com entradas P e Q e uma saída",
+      "options": [
+        "Verdadeiro",
+        "Falso",
+        "Indeterminado",
+        "Depende da ordem de P e Q"
+      ],
+      "correctIndex": 1,
+      "explanation": "A conjunção (E) só é verdadeira quando TODAS as entradas são verdadeiras. Como Q é falso, P ∧ Q é falso.",
+      "translations": {
+        "en": {
+          "prompt": "Look at the AND logic gate. If P = True and Q = False, what is the value of P ∧ Q?",
+          "concept": "Logical connectives",
+          "options": [
+            "True",
+            "False",
+            "Undetermined",
+            "It depends on the order of P and Q"
+          ],
+          "explanation": "Conjunction (AND) is true only when ALL inputs are true. Since Q is false, P ∧ Q is false.",
+          "imageUrl": "/img/en/and-gate.svg",
+          "imageAlt": "AND logic gate with inputs P and Q and one output"
+        },
+        "es": {
+          "prompt": "Observa la compuerta lógica Y (AND). Si P = Verdadero y Q = Falso, ¿cuál es el valor de P ∧ Q?",
+          "concept": "Conectores lógicos",
+          "options": [
+            "Verdadero",
+            "Falso",
+            "Indeterminado",
+            "Depende del orden de P y Q"
+          ],
+          "explanation": "La conjunción (Y) solo es verdadera cuando TODAS las entradas son verdaderas. Como Q es falso, P ∧ Q es falso.",
+          "imageUrl": "/img/es/and-gate.svg",
+          "imageAlt": "Compuerta lógica AND con entradas P y Q y una salida"
+        },
+        "fr": {
+          "prompt": "Observez la porte logique ET (AND). Si P = Vrai et Q = Faux, quelle est la valeur de P ∧ Q ?",
+          "concept": "Connecteurs logiques",
+          "options": [
+            "Vrai",
+            "Faux",
+            "Indéterminé",
+            "Cela dépend de l’ordre de P et Q"
+          ],
+          "explanation": "La conjonction (ET) n’est vraie que lorsque TOUTES les entrées sont vraies. Comme Q est faux, P ∧ Q est faux.",
+          "imageUrl": "/img/fr/and-gate.svg",
+          "imageAlt": "Porte logique AND avec les entrées P et Q et une sortie"
+        }
+      }
+    },
+    {
+      "prompt": "Observe a porta lógica OU (OR). Se P = Falso e Q = Verdadeiro, qual é o valor de P ∨ Q?",
+      "concept": "Conectivos lógicos",
+      "imageUrl": "/img/or-gate.svg",
+      "imageAlt": "Porta lógica OR com entradas P e Q e uma saída",
+      "options": [
+        "Verdadeiro",
+        "Falso",
+        "Indeterminado",
+        "Só é verdadeiro se P também for"
+      ],
+      "correctIndex": 0,
+      "explanation": "A disjunção (OU) é verdadeira quando PELO MENOS UMA das entradas é verdadeira. Como Q é verdadeiro, P ∨ Q é verdadeiro.",
+      "translations": {
+        "en": {
+          "prompt": "Look at the OR logic gate. If P = False and Q = True, what is the value of P ∨ Q?",
+          "concept": "Logical connectives",
+          "options": [
+            "True",
+            "False",
+            "Undetermined",
+            "It is only true if P is also true"
+          ],
+          "explanation": "Disjunction (OR) is true when AT LEAST ONE of the inputs is true. Since Q is true, P ∨ Q is true.",
+          "imageUrl": "/img/en/or-gate.svg",
+          "imageAlt": "OR logic gate with inputs P and Q and one output"
+        },
+        "es": {
+          "prompt": "Observa la compuerta lógica O (OR). Si P = Falso y Q = Verdadero, ¿cuál es el valor de P ∨ Q?",
+          "concept": "Conectores lógicos",
+          "options": [
+            "Verdadero",
+            "Falso",
+            "Indeterminado",
+            "Solo es verdadero si P también lo es"
+          ],
+          "explanation": "La disyunción (O) es verdadera cuando AL MENOS UNA de las entradas es verdadera. Como Q es verdadero, P ∨ Q es verdadero.",
+          "imageUrl": "/img/es/or-gate.svg",
+          "imageAlt": "Compuerta lógica OR con entradas P y Q y una salida"
+        },
+        "fr": {
+          "prompt": "Observez la porte logique OU (OR). Si P = Faux et Q = Vrai, quelle est la valeur de P ∨ Q ?",
+          "concept": "Connecteurs logiques",
+          "options": [
+            "Vrai",
+            "Faux",
+            "Indéterminé",
+            "Ce n’est vrai que si P l’est aussi"
+          ],
+          "explanation": "La disjonction (OU) est vraie lorsqu’AU MOINS UNE des entrées est vraie. Comme Q est vrai, P ∨ Q est vrai.",
+          "imageUrl": "/img/fr/or-gate.svg",
+          "imageAlt": "Porte logique OR avec les entrées P et Q et une sortie"
+        }
+      }
+    },
+    {
+      "prompt": "Qual é o valor lógico de ¬(V ∧ F)?",
+      "concept": "Negação",
+      "options": [
+        "Verdadeiro",
+        "Falso",
+        "Não é possível calcular",
+        "V e F ao mesmo tempo"
+      ],
+      "correctIndex": 0,
+      "explanation": "Primeiro resolvemos os parênteses: V ∧ F = F. Em seguida aplicamos a negação: ¬F = V.",
+      "translations": {
+        "en": {
+          "prompt": "What is the logical value of ¬(T ∧ F)?",
+          "concept": "Negation",
+          "options": [
+            "True",
+            "False",
+            "It cannot be calculated",
+            "T and F at the same time"
+          ],
+          "explanation": "First solve the parentheses: T ∧ F = F. Then apply the negation: ¬F = T."
+        },
+        "es": {
+          "prompt": "¿Cuál es el valor lógico de ¬(V ∧ F)?",
+          "concept": "Negación",
+          "options": [
+            "Verdadero",
+            "Falso",
+            "No es posible calcularlo",
+            "V y F al mismo tiempo"
+          ],
+          "explanation": "Primero resolvemos los paréntesis: V ∧ F = F. Luego aplicamos la negación: ¬F = V."
+        },
+        "fr": {
+          "prompt": "Quelle est la valeur logique de ¬(V ∧ F) ?",
+          "concept": "Négation",
+          "options": [
+            "Vrai",
+            "Faux",
+            "Impossible à calculer",
+            "V et F en même temps"
+          ],
+          "explanation": "On résout d’abord les parenthèses : V ∧ F = F. Puis on applique la négation : ¬F = V."
+        }
+      }
+    },
+    {
+      "prompt": "A imagem mostra a tabela-verdade de uma expressão com 2 variáveis (4 linhas). Quantas linhas terá a tabela-verdade de uma expressão com 3 variáveis?",
+      "concept": "Tabela-verdade",
+      "imageUrl": "/img/truth-table.svg",
+      "imageAlt": "Tabela-verdade das variáveis P e Q com as colunas P E Q e P OU Q",
+      "options": [
+        "3",
+        "6",
+        "8",
+        "9"
+      ],
+      "correctIndex": 2,
+      "explanation": "O número de linhas é 2 elevado ao número de variáveis: 2³ = 8 combinações possíveis de V e F.",
+      "translations": {
+        "en": {
+          "prompt": "The image shows the truth table of an expression with 2 variables (4 rows). How many rows will the truth table of an expression with 3 variables have?",
+          "concept": "Truth table",
+          "options": [
+            "3",
+            "6",
+            "8",
+            "9"
+          ],
+          "explanation": "The number of rows is 2 raised to the number of variables: 2³ = 8 possible combinations of T and F.",
+          "imageUrl": "/img/en/truth-table.svg",
+          "imageAlt": "Truth table of variables P and Q with the columns P AND Q and P OR Q"
+        },
+        "es": {
+          "prompt": "La imagen muestra la tabla de verdad de una expresión con 2 variables (4 filas). ¿Cuántas filas tendrá la tabla de verdad de una expresión con 3 variables?",
+          "concept": "Tabla de verdad",
+          "options": [
+            "3",
+            "6",
+            "8",
+            "9"
+          ],
+          "explanation": "El número de filas es 2 elevado al número de variables: 2³ = 8 combinaciones posibles de V y F.",
+          "imageUrl": "/img/es/truth-table.svg",
+          "imageAlt": "Tabla de verdad de las variables P y Q con las columnas P Y Q y P O Q"
+        },
+        "fr": {
+          "prompt": "L’image montre la table de vérité d’une expression à 2 variables (4 lignes). Combien de lignes aura la table de vérité d’une expression à 3 variables ?",
+          "concept": "Table de vérité",
+          "options": [
+            "3",
+            "6",
+            "8",
+            "9"
+          ],
+          "explanation": "Le nombre de lignes est 2 puissance le nombre de variables : 2³ = 8 combinaisons possibles de V et F.",
+          "imageUrl": "/img/fr/truth-table.svg",
+          "imageAlt": "Table de vérité des variables P et Q avec les colonnes P ET Q et P OU Q"
+        }
+      }
+    },
+    {
+      "prompt": "A proposição condicional P → Q (se P, então Q) é FALSA somente quando:",
+      "concept": "Condicional",
+      "options": [
+        "P é falso e Q é verdadeiro",
+        "P é verdadeiro e Q é falso",
+        "P e Q são falsos",
+        "P e Q são verdadeiros"
+      ],
+      "correctIndex": 1,
+      "explanation": "A condicional só é falsa quando a promessa é quebrada: o antecedente (P) acontece e o consequente (Q) não acontece.",
+      "translations": {
+        "en": {
+          "prompt": "The conditional proposition P → Q (if P, then Q) is FALSE only when:",
+          "concept": "Conditional",
+          "options": [
+            "P is false and Q is true",
+            "P is true and Q is false",
+            "P and Q are false",
+            "P and Q are true"
+          ],
+          "explanation": "The conditional is false only when the promise is broken: the antecedent (P) happens and the consequent (Q) does not."
+        },
+        "es": {
+          "prompt": "La proposición condicional P → Q (si P, entonces Q) es FALSA solamente cuando:",
+          "concept": "Condicional",
+          "options": [
+            "P es falso y Q es verdadero",
+            "P es verdadero y Q es falso",
+            "P y Q son falsos",
+            "P y Q son verdaderos"
+          ],
+          "explanation": "El condicional solo es falso cuando se rompe la promesa: el antecedente (P) ocurre y el consecuente (Q) no ocurre."
+        },
+        "fr": {
+          "prompt": "La proposition conditionnelle P → Q (si P, alors Q) est FAUSSE uniquement lorsque :",
+          "concept": "Conditionnelle",
+          "options": [
+            "P est faux et Q est vrai",
+            "P est vrai et Q est faux",
+            "P et Q sont faux",
+            "P et Q sont vrais"
+          ],
+          "explanation": "La conditionnelle n’est fausse que lorsque la promesse est rompue : l’antécédent (P) se produit et le conséquent (Q) ne se produit pas."
+        }
+      }
+    },
+    {
+      "prompt": "Pela Lei de De Morgan, a expressão ¬(A ∧ B) é equivalente a:",
+      "concept": "Leis de De Morgan",
+      "options": [
+        "¬A ∧ ¬B",
+        "¬A ∨ ¬B",
+        "A ∨ B",
+        "¬A ∧ B"
+      ],
+      "correctIndex": 1,
+      "explanation": "A negação de uma conjunção é a disjunção das negações: ¬(A ∧ B) ≡ ¬A ∨ ¬B. O E vira OU e cada termo é negado.",
+      "translations": {
+        "en": {
+          "prompt": "According to De Morgan’s law, the expression ¬(A ∧ B) is equivalent to:",
+          "concept": "De Morgan’s laws",
+          "options": [
+            "¬A ∧ ¬B",
+            "¬A ∨ ¬B",
+            "A ∨ B",
+            "¬A ∧ B"
+          ],
+          "explanation": "The negation of a conjunction is the disjunction of the negations: ¬(A ∧ B) ≡ ¬A ∨ ¬B. The AND becomes OR and each term is negated."
+        },
+        "es": {
+          "prompt": "Según la ley de De Morgan, la expresión ¬(A ∧ B) es equivalente a:",
+          "concept": "Leyes de De Morgan",
+          "options": [
+            "¬A ∧ ¬B",
+            "¬A ∨ ¬B",
+            "A ∨ B",
+            "¬A ∧ B"
+          ],
+          "explanation": "La negación de una conjunción es la disyunción de las negaciones: ¬(A ∧ B) ≡ ¬A ∨ ¬B. El Y se convierte en O y cada término se niega."
+        },
+        "fr": {
+          "prompt": "D’après la loi de De Morgan, l’expression ¬(A ∧ B) est équivalente à :",
+          "concept": "Lois de De Morgan",
+          "options": [
+            "¬A ∧ ¬B",
+            "¬A ∨ ¬B",
+            "A ∨ B",
+            "¬A ∧ B"
+          ],
+          "explanation": "La négation d’une conjonction est la disjonction des négations : ¬(A ∧ B) ≡ ¬A ∨ ¬B. Le ET devient OU et chaque terme est nié."
+        }
+      }
+    },
+    {
+      "prompt": "Analise o fluxograma. Se a variável nota receber o valor 6, o que será exibido?",
+      "concept": "Estrutura condicional",
+      "imageUrl": "/img/flowchart-decision.svg",
+      "imageAlt": "Fluxograma: início, nota recebe 6, decisão nota maior ou igual a 7; se sim escreva Aprovado, se não escreva Recuperação; fim",
+      "options": [
+        "Aprovado",
+        "Recuperação",
+        "Aprovado e Recuperação",
+        "Nada é exibido"
+      ],
+      "correctIndex": 1,
+      "explanation": "A condição 6 >= 7 é falsa, então o fluxo segue pelo caminho NÃO e exibe Recuperação. Apenas um dos caminhos do desvio condicional é executado.",
+      "translations": {
+        "en": {
+          "prompt": "Analyze the flowchart. If the variable grade receives the value 6, what will be displayed?",
+          "concept": "Conditional structure",
+          "options": [
+            "Passed",
+            "Make-up exam",
+            "Passed and Make-up exam",
+            "Nothing is displayed"
+          ],
+          "explanation": "The condition 6 >= 7 is false, so the flow follows the NO path and displays Make-up exam. Only one of the branches of the conditional is executed.",
+          "imageUrl": "/img/en/flowchart-decision.svg",
+          "imageAlt": "Flowchart: start, grade receives 6, decision grade greater than or equal to 7; if yes write Passed, if no write Make-up exam; end"
+        },
+        "es": {
+          "prompt": "Analiza el diagrama de flujo. Si la variable nota recibe el valor 6, ¿qué se mostrará?",
+          "concept": "Estructura condicional",
+          "options": [
+            "Aprobado",
+            "Recuperación",
+            "Aprobado y Recuperación",
+            "No se muestra nada"
+          ],
+          "explanation": "La condición 6 >= 7 es falsa, así que el flujo sigue por el camino NO y muestra Recuperación. Solo se ejecuta uno de los caminos de la decisión.",
+          "imageUrl": "/img/es/flowchart-decision.svg",
+          "imageAlt": "Diagrama de flujo: inicio, nota recibe 6, decisión nota mayor o igual a 7; si sí escribir Aprobado, si no escribir Recuperación; fin"
+        },
+        "fr": {
+          "prompt": "Analysez l’organigramme. Si la variable note reçoit la valeur 6, qu’est-ce qui sera affiché ?",
+          "concept": "Structure conditionnelle",
+          "options": [
+            "Admis",
+            "Rattrapage",
+            "Admis et Rattrapage",
+            "Rien n’est affiché"
+          ],
+          "explanation": "La condition 6 >= 7 est fausse, donc le flux suit le chemin NON et affiche Rattrapage. Une seule des branches de la condition est exécutée.",
+          "imageUrl": "/img/fr/flowchart-decision.svg",
+          "imageAlt": "Organigramme : début, note reçoit 6, décision note supérieure ou égale à 7 ; si oui écrire Admis, sinon écrire Rattrapage ; fin"
+        }
+      }
+    },
+    {
+      "prompt": "Faça o teste de mesa do algoritmo abaixo. Qual valor será exibido?",
+      "concept": "Estrutura de repetição",
+      "imageUrl": "/img/flowchart-loop.svg",
+      "imageAlt": "Fluxograma de um laço: soma recebe 0, i de 1 até 4, soma recebe soma mais i, ao final escreva soma",
+      "code": "soma ← 0\npara i de 1 até 4 faça\n    soma ← soma + i\nfimpara\nescreva(soma)",
+      "options": [
+        "4",
+        "5",
+        "10",
+        "15"
+      ],
+      "correctIndex": 2,
+      "explanation": "O laço executa 4 vezes: soma = 0+1 = 1, 1+2 = 3, 3+3 = 6, 6+4 = 10. O valor exibido é 10.",
+      "translations": {
+        "en": {
+          "prompt": "Desk-check the algorithm below. What value will be displayed?",
+          "concept": "Loop structure",
+          "options": [
+            "4",
+            "5",
+            "10",
+            "15"
+          ],
+          "explanation": "The loop runs 4 times: sum = 0+1 = 1, 1+2 = 3, 3+3 = 6, 6+4 = 10. The value displayed is 10.",
+          "imageUrl": "/img/en/flowchart-loop.svg",
+          "imageAlt": "Loop flowchart: sum receives 0, i from 1 to 4, sum receives sum plus i, at the end write sum",
+          "code": "sum ← 0\nfor i from 1 to 4 do\n    sum ← sum + i\nend for\nwrite(sum)"
+        },
+        "es": {
+          "prompt": "Haz la prueba de escritorio del algoritmo siguiente. ¿Qué valor se mostrará?",
+          "concept": "Estructura de repetición",
+          "options": [
+            "4",
+            "5",
+            "10",
+            "15"
+          ],
+          "explanation": "El bucle se ejecuta 4 veces: suma = 0+1 = 1, 1+2 = 3, 3+3 = 6, 6+4 = 10. El valor mostrado es 10.",
+          "imageUrl": "/img/es/flowchart-loop.svg",
+          "imageAlt": "Diagrama de flujo de repetición: suma recibe 0, i desde 1 hasta 4, suma recibe suma más i, al final escribir suma",
+          "code": "suma ← 0\npara i desde 1 hasta 4 hacer\n    suma ← suma + i\nfin para\nescribir(suma)"
+        },
+        "fr": {
+          "prompt": "Exécutez pas à pas l’algorithme ci-dessous. Quelle valeur sera affichée ?",
+          "concept": "Structure de répétition",
+          "options": [
+            "4",
+            "5",
+            "10",
+            "15"
+          ],
+          "explanation": "La boucle s’exécute 4 fois : somme = 0+1 = 1, 1+2 = 3, 3+3 = 6, 6+4 = 10. La valeur affichée est 10.",
+          "imageUrl": "/img/fr/flowchart-loop.svg",
+          "imageAlt": "Organigramme de boucle : somme reçoit 0, i de 1 à 4, somme reçoit somme plus i, à la fin écrire somme",
+          "code": "somme ← 0\npour i de 1 à 4 faire\n    somme ← somme + i\nfin pour\nécrire(somme)"
+        }
+      }
+    },
+    {
+      "prompt": "Qual é o valor final da variável podeEntrar?",
+      "concept": "Expressões booleanas",
+      "code": "idade ← 17\ntemAutorizacao ← verdadeiro\npodeEntrar ← (idade >= 18) OU temAutorizacao",
+      "options": [
+        "verdadeiro",
+        "falso",
+        "17",
+        "erro de execução"
+      ],
+      "correctIndex": 0,
+      "explanation": "(17 >= 18) é falso, mas falso OU verdadeiro = verdadeiro. Basta uma das condições ser verdadeira na disjunção.",
+      "translations": {
+        "en": {
+          "prompt": "What is the final value of the variable canEnter?",
+          "concept": "Boolean expressions",
+          "options": [
+            "true",
+            "false",
+            "17",
+            "runtime error"
+          ],
+          "explanation": "(17 >= 18) is false, but false OR true = true. In a disjunction it is enough for one of the conditions to be true.",
+          "code": "age ← 17\nhasPermission ← true\ncanEnter ← (age >= 18) OR hasPermission"
+        },
+        "es": {
+          "prompt": "¿Cuál es el valor final de la variable puedeEntrar?",
+          "concept": "Expresiones booleanas",
+          "options": [
+            "verdadero",
+            "falso",
+            "17",
+            "error de ejecución"
+          ],
+          "explanation": "(17 >= 18) es falso, pero falso O verdadero = verdadero. En la disyunción basta con que una de las condiciones sea verdadera.",
+          "code": "edad ← 17\ntienePermiso ← verdadero\npuedeEntrar ← (edad >= 18) O tienePermiso"
+        },
+        "fr": {
+          "prompt": "Quelle est la valeur finale de la variable peutEntrer ?",
+          "concept": "Expressions booléennes",
+          "options": [
+            "vrai",
+            "faux",
+            "17",
+            "erreur d’exécution"
+          ],
+          "explanation": "(17 >= 18) est faux, mais faux OU vrai = vrai. Dans une disjonction, il suffit qu’une des conditions soit vraie.",
+          "code": "age ← 17\naAutorisation ← vrai\npeutEntrer ← (age >= 18) OU aAutorisation"
+        }
+      }
+    },
+    {
+      "prompt": "Faça o teste de mesa: quais são os valores finais de a e b?",
+      "concept": "Algoritmos sequenciais",
+      "code": "a ← 3\nb ← 5\na ← a + b\nb ← a - b\na ← a - b",
+      "options": [
+        "a = 3 e b = 5",
+        "a = 8 e b = 3",
+        "a = 5 e b = 3",
+        "a = 5 e b = 8"
+      ],
+      "correctIndex": 2,
+      "explanation": "Passo a passo: a = 3+5 = 8; b = 8-5 = 3; a = 8-3 = 5. O algoritmo troca os valores das variáveis sem usar uma variável auxiliar.",
+      "translations": {
+        "en": {
+          "prompt": "Desk-check the algorithm: what are the final values of a and b?",
+          "concept": "Sequential algorithms",
+          "options": [
+            "a = 3 and b = 5",
+            "a = 8 and b = 3",
+            "a = 5 and b = 3",
+            "a = 5 and b = 8"
+          ],
+          "explanation": "Step by step: a = 3+5 = 8; b = 8-5 = 3; a = 8-3 = 5. The algorithm swaps the values of the variables without using an auxiliary variable.",
+          "code": "a ← 3\nb ← 5\na ← a + b\nb ← a - b\na ← a - b"
+        },
+        "es": {
+          "prompt": "Haz la prueba de escritorio: ¿cuáles son los valores finales de a y b?",
+          "concept": "Algoritmos secuenciales",
+          "options": [
+            "a = 3 y b = 5",
+            "a = 8 y b = 3",
+            "a = 5 y b = 3",
+            "a = 5 y b = 8"
+          ],
+          "explanation": "Paso a paso: a = 3+5 = 8; b = 8-5 = 3; a = 8-3 = 5. El algoritmo intercambia los valores de las variables sin usar una variable auxiliar.",
+          "code": "a ← 3\nb ← 5\na ← a + b\nb ← a - b\na ← a - b"
+        },
+        "fr": {
+          "prompt": "Exécutez pas à pas : quelles sont les valeurs finales de a et b ?",
+          "concept": "Algorithmes séquentiels",
+          "options": [
+            "a = 3 et b = 5",
+            "a = 8 et b = 3",
+            "a = 5 et b = 3",
+            "a = 5 et b = 8"
+          ],
+          "explanation": "Pas à pas : a = 3+5 = 8 ; b = 8-5 = 3 ; a = 8-3 = 5. L’algorithme échange les valeurs des variables sans utiliser de variable auxiliaire.",
+          "code": "a ← 3\nb ← 5\na ← a + b\nb ← a - b\na ← a - b"
+        }
+      }
+    },
+    {
+      "prompt": "O que caracteriza corretamente um algoritmo?",
+      "concept": "Algoritmos",
+      "options": [
+        "Um programa escrito obrigatoriamente em uma linguagem de programação",
+        "Uma sequência finita, ordenada e sem ambiguidade de passos para resolver um problema",
+        "Qualquer conjunto de instruções, mesmo que nunca termine",
+        "Um desenho de fluxograma"
+      ],
+      "correctIndex": 1,
+      "explanation": "Algoritmo é uma sequência finita e bem definida de passos. Ele pode ser representado em linguagem natural, pseudocódigo, fluxograma ou linguagem de programação.",
+      "translations": {
+        "en": {
+          "prompt": "What correctly characterizes an algorithm?",
+          "concept": "Algorithms",
+          "options": [
+            "A program necessarily written in a programming language",
+            "A finite, ordered and unambiguous sequence of steps to solve a problem",
+            "Any set of instructions, even one that never ends",
+            "A flowchart drawing"
+          ],
+          "explanation": "An algorithm is a finite and well-defined sequence of steps. It can be represented in natural language, pseudocode, a flowchart or a programming language."
+        },
+        "es": {
+          "prompt": "¿Qué caracteriza correctamente a un algoritmo?",
+          "concept": "Algoritmos",
+          "options": [
+            "Un programa escrito obligatoriamente en un lenguaje de programación",
+            "Una secuencia finita, ordenada y sin ambigüedad de pasos para resolver un problema",
+            "Cualquier conjunto de instrucciones, aunque nunca termine",
+            "Un dibujo de diagrama de flujo"
+          ],
+          "explanation": "Un algoritmo es una secuencia finita y bien definida de pasos. Puede representarse en lenguaje natural, pseudocódigo, diagrama de flujo o lenguaje de programación."
+        },
+        "fr": {
+          "prompt": "Qu’est-ce qui caractérise correctement un algorithme ?",
+          "concept": "Algorithmes",
+          "options": [
+            "Un programme obligatoirement écrit dans un langage de programmation",
+            "Une suite finie, ordonnée et sans ambiguïté d’étapes pour résoudre un problème",
+            "N’importe quel ensemble d’instructions, même s’il ne se termine jamais",
+            "Un dessin d’organigramme"
+          ],
+          "explanation": "Un algorithme est une suite finie et bien définie d’étapes. Il peut être représenté en langage naturel, en pseudocode, par un organigramme ou dans un langage de programmation."
+        }
+      }
+    }
+  ]
+}

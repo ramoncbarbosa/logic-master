@@ -79,7 +79,38 @@ export type OwnerQuiz = QuizMeta & { questions: OwnerQuestion[]; translations: T
 
 export type AnswerResult = { correct: boolean; correctIndex: number; explanation: string }
 export type FinishResult = { score: number; total: number; seconds: number; byConcept: { concept: string; total: number; correct: number }[] }
-export type PublicConfig = { allowedEmailDomains: string[]; consentVersion: string; locales: Locale[] }
+export type PublicConfig = {
+  allowedEmailDomains: string[]
+  consentVersion: string
+  locales: Locale[]
+  authors: string[]
+  repository: string
+  licenseUrl: string
+}
+
+type ExportQuestionText = {
+  prompt: string
+  concept?: string
+  options: string[]
+  explanation?: string
+  imageUrl?: string
+  imageAlt?: string
+  code?: string
+}
+type ExportQuizText = { title: string; description?: string; audience?: string; objective?: string }
+
+export type QuizExport = ExportQuizText & {
+  format: 'logic-master-quiz'
+  version: number
+  authors: string[]
+  license: string
+  licenseUrl: string
+  source: string
+  repository: string
+  slug: string
+  translations: Translations<ExportQuizText>
+  questions: (ExportQuestionText & { correctIndex: number; translations: Translations<ExportQuestionText> })[]
+}
 export type Owner = { id: number; name: string; email: string }
 
 export type QuizInput = {
@@ -179,6 +210,8 @@ export const api = {
     post<AnswerResult>(`/attempts/${attemptId}/answers`, body),
   finish: (attemptId: string) => post<FinishResult>(`/attempts/${attemptId}/finish`),
   sendSus: (attemptId: string, body: { answers: number[]; comment?: string }) => post<{ score: number }>(`/attempts/${attemptId}/sus`, body),
+  quizExport: (slug: string) => request<QuizExport>(`/quizzes/${encodeURIComponent(slug)}/export.json`),
+  exportUrl: (slug: string) => `/api/quizzes/${encodeURIComponent(slug)}/export.json`,
   ranking: (slug: string, opts: { limit?: number; attempt?: string } = {}) => {
     const q = new URLSearchParams()
     if (opts.limit) q.set('limit', String(opts.limit))
@@ -195,6 +228,8 @@ export const api = {
     listQuizzes: () => request<QuizMeta[]>('/admin/quizzes'),
     getQuiz: (id: number) => request<OwnerQuiz>(`/admin/quizzes/${id}`),
     createQuiz: (input: QuizInput) => post<{ id: number }>('/admin/quizzes', input),
+    importQuiz: (data: unknown) => post<{ id: number; slug: string }>('/admin/quizzes/import', data),
+    exportUrl: (id: number) => `/api/admin/quizzes/${id}/export.json`,
     updateQuiz: (id: number, input: QuizInput) =>
       request<{ id: number }>(`/admin/quizzes/${id}`, { method: 'PUT', body: JSON.stringify(input) }),
     deleteQuiz: (id: number) => request<{ ok: true }>(`/admin/quizzes/${id}`, { method: 'DELETE' }),

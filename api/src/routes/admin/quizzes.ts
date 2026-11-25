@@ -4,6 +4,7 @@ import { fail, t } from '../../lib/i18n'
 import { toOwnerQuestion, toQuizMeta } from '../../lib/mappers'
 import { parseQuizInput } from '../../lib/validation'
 import { getQuizTranslations } from '../../services/content'
+import { buildQuizExport, exportHeaders } from '../../services/export'
 import { createQuiz, getOwnedQuiz, slugTaken, updateQuiz } from '../../services/quizzes'
 import { quizStats } from '../../services/stats'
 import type { AppEnv, QuestionRow, QuizRow } from '../../types'
@@ -37,6 +38,23 @@ adminQuizRoutes.post('/', async (c) => {
   if (await slugTaken(c.env.DB, input.slug)) return fail(c, 409, 'slugTaken')
   const id = await createQuiz(c.env.DB, c.get('ownerId'), input)
   return c.json({ id }, 201)
+})
+
+adminQuizRoutes.post('/import', async (c) => {
+  const input = parseQuizInput(await c.req.json().catch(() => null))
+  input.questions = input.questions.map((q) => ({ ...q, id: undefined }))
+  input.published = false
+  let slug = input.slug
+  for (let n = 2; await slugTaken(c.env.DB, slug); n++) slug = `${input.slug.slice(0, 70)}-${n}`
+  const id = await createQuiz(c.env.DB, c.get('ownerId'), { ...input, slug })
+  return c.json({ id, slug }, 201)
+})
+
+adminQuizRoutes.get('/:id/export.json', async (c) => {
+  const quiz = await getOwnedQuiz(c.env.DB, Number(c.req.param('id')), c.get('ownerId'))
+  if (!quiz) return fail(c, 404, 'quizNotFound')
+  const data = await buildQuizExport(c.env.DB, quiz, new URL(c.req.url).origin)
+  return c.body(JSON.stringify(data, null, 2), 200, exportHeaders(quiz.slug))
 })
 
 adminQuizRoutes.get('/:id', async (c) => {

@@ -9,6 +9,7 @@
     "db:migrate:local": "pnpm --filter api db:migrate:local",
     "db:migrate:remote": "pnpm --filter api db:migrate:remote",
     "db:reset:local": "node api/scripts/reset-local.mjs",
+    "content:seed": "node api/scripts/content.mjs",
     "professor": "node api/scripts/owner.mjs",
     "dev:api": "pnpm --filter api dev",
     "dev:web": "pnpm --filter web dev",

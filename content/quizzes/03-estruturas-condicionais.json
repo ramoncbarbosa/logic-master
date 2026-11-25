@@ -1,0 +1,341 @@
+{
+  "format": "logic-master-quiz",
+  "version": 1,
+  "authors": [
+    "Ramon Castro Barbosa",
+    "Maíra Bastos David de Assis"
+  ],
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "source": "https://logic-master-web.ramon-cs-barbosa.workers.dev/quiz/estruturas-condicionais",
+  "repository": "https://github.com/ramoncbarbosa/logic-master",
+  "slug": "estruturas-condicionais",
+  "title": "Estruturas condicionais na prática",
+  "description": "Pratique se/senão, condições encadeadas e aninhadas, escolha/caso e operadores lógicos com fluxogramas e pseudocódigo.",
+  "audience": "Ensino Médio Técnico e 1º período de Computação",
+  "objective": "Prever o caminho de execução de algoritmos com desvios condicionais simples, encadeados, aninhados e de múltipla escolha.",
+  "translations": {
+    "en": {
+      "title": "Conditional structures in practice",
+      "description": "Practice if/else, chained and nested conditions, switch/case and logical operators with flowcharts and pseudocode.",
+      "audience": "Technical high school and first-year Computing students",
+      "objective": "Predict the execution path of algorithms with simple, chained, nested and multiple-choice conditional branches."
+    },
+    "es": {
+      "title": "Estructuras condicionales en la práctica",
+      "description": "Practica si/si no, condiciones encadenadas y anidadas, según/caso y operadores lógicos con diagramas de flujo y pseudocódigo.",
+      "audience": "Educación media técnica y primer semestre de Computación",
+      "objective": "Predecir el camino de ejecución de algoritmos con desvíos condicionales simples, encadenados, anidados y de selección múltiple."
+    },
+    "fr": {
+      "title": "Structures conditionnelles en pratique",
+      "description": "Entraînez-vous avec si/sinon, les conditions enchaînées et imbriquées, selon/cas et les opérateurs logiques à l’aide d’organigrammes et de pseudocode.",
+      "audience": "Lycée technique et première année d’informatique",
+      "objective": "Prévoir le chemin d’exécution d’algorithmes avec des branchements conditionnels simples, enchaînés, imbriqués et à choix multiple."
+    }
+  },
+  "questions": [
+    {
+      "prompt": "O que será exibido?",
+      "concept": "Condicional encadeada",
+      "code": "idade ← 16\nse idade >= 18 então\n    escreva(\"Pode votar e dirigir\")\nsenão se idade >= 16 então\n    escreva(\"Pode votar\")\nsenão\n    escreva(\"Ainda não pode votar\")\nfimse",
+      "options": [
+        "Pode votar e dirigir",
+        "Pode votar",
+        "Ainda não pode votar",
+        "Nada é exibido"
+      ],
+      "correctIndex": 1,
+      "explanation": "A primeira condição (16 >= 18) é falsa; a segunda (16 >= 16) é verdadeira, então aparece \"Pode votar\" e o restante é ignorado.",
+      "translations": {
+        "en": {
+          "prompt": "What will be displayed?",
+          "concept": "Chained conditional",
+          "options": [
+            "Can vote and drive",
+            "Can vote",
+            "Cannot vote yet",
+            "Nothing is displayed"
+          ],
+          "explanation": "The first condition (16 >= 18) is false; the second (16 >= 16) is true, so \"Can vote\" appears and the rest is skipped.",
+          "code": "age ← 16\nif age >= 18 then\n    write(\"Can vote and drive\")\nelse if age >= 16 then\n    write(\"Can vote\")\nelse\n    write(\"Cannot vote yet\")\nend if"
+        },
+        "es": {
+          "prompt": "¿Qué se mostrará?",
+          "concept": "Condicional encadenada",
+          "options": [
+            "Puede votar y conducir",
+            "Puede votar",
+            "Todavía no puede votar",
+            "No se muestra nada"
+          ],
+          "explanation": "La primera condición (16 >= 18) es falsa; la segunda (16 >= 16) es verdadera, así que aparece \"Puede votar\" y el resto se ignora.",
+          "code": "edad ← 16\nsi edad >= 18 entonces\n    escribir(\"Puede votar y conducir\")\nsi no, si edad >= 16 entonces\n    escribir(\"Puede votar\")\nsi no\n    escribir(\"Todavía no puede votar\")\nfin si"
+        },
+        "fr": {
+          "prompt": "Qu’est-ce qui sera affiché ?",
+          "concept": "Conditions enchaînées",
+          "options": [
+            "Peut voter et conduire",
+            "Peut voter",
+            "Ne peut pas encore voter",
+            "Rien n’est affiché"
+          ],
+          "explanation": "La première condition (16 >= 18) est fausse ; la deuxième (16 >= 16) est vraie, donc « Peut voter » s’affiche et le reste est ignoré.",
+          "code": "age ← 16\nsi age >= 18 alors\n    écrire(\"Peut voter et conduire\")\nsinon si age >= 16 alors\n    écrire(\"Peut voter\")\nsinon\n    écrire(\"Ne peut pas encore voter\")\nfin si"
+        }
+      }
+    },
+    {
+      "prompt": "Siga o fluxograma com média 8. Qual mensagem aparece?",
+      "concept": "Decisão aninhada",
+      "imageUrl": "/img/flowchart-nested.svg",
+      "imageAlt": "Fluxograma de decisão aninhada: media recebe 8; se media maior ou igual a 7, testa se maior ou igual a 9 para escrever Excelente ou Aprovado; senão Reprovado",
+      "options": [
+        "Excelente",
+        "Aprovado",
+        "Reprovado"
+      ],
+      "correctIndex": 1,
+      "explanation": "8 >= 7 é verdadeiro, então entramos na segunda decisão. 8 >= 9 é falso, logo a mensagem é \"Aprovado\".",
+      "translations": {
+        "en": {
+          "prompt": "Follow the flowchart with an average of 8. Which message appears?",
+          "concept": "Nested decision",
+          "options": [
+            "Excellent",
+            "Passed",
+            "Failed"
+          ],
+          "explanation": "8 >= 7 is true, so we enter the second decision. 8 >= 9 is false, so the message is \"Passed\".",
+          "imageUrl": "/img/en/flowchart-nested.svg",
+          "imageAlt": "Nested decision flowchart: average receives 8; if at least 7, check whether at least 9 to write Excellent or Passed; otherwise Failed"
+        },
+        "es": {
+          "prompt": "Sigue el diagrama de flujo con promedio 8. ¿Qué mensaje aparece?",
+          "concept": "Decisión anidada",
+          "options": [
+            "Excelente",
+            "Aprobado",
+            "Reprobado"
+          ],
+          "explanation": "8 >= 7 es verdadero, así que entramos en la segunda decisión. 8 >= 9 es falso, por lo tanto el mensaje es \"Aprobado\".",
+          "imageUrl": "/img/es/flowchart-nested.svg",
+          "imageAlt": "Diagrama de decisión anidada: promedio recibe 8; si es al menos 7, verifica si es al menos 9 para escribir Excelente o Aprobado; si no, Reprobado"
+        },
+        "fr": {
+          "prompt": "Suivez l’organigramme avec une moyenne de 8. Quel message apparaît ?",
+          "concept": "Décision imbriquée",
+          "options": [
+            "Excellent",
+            "Admis",
+            "Ajourné"
+          ],
+          "explanation": "8 >= 7 est vrai, on entre donc dans la deuxième décision. 8 >= 9 est faux, le message est « Admis ».",
+          "imageUrl": "/img/fr/flowchart-nested.svg",
+          "imageAlt": "Organigramme de décision imbriquée : moyenne reçoit 8 ; si au moins 7, on teste si au moins 9 pour écrire Excellent ou Admis ; sinon Ajourné"
+        }
+      }
+    },
+    {
+      "prompt": "Verdadeiro ou falso: numa estrutura se...senão, os dois blocos podem ser executados na mesma execução.",
+      "concept": "Estrutura condicional",
+      "options": [
+        "Verdadeiro",
+        "Falso"
+      ],
+      "correctIndex": 1,
+      "explanation": "Falso. Ou a condição é verdadeira e roda o bloco do \"se\", ou é falsa e roda o bloco do \"senão\". Nunca os dois.",
+      "translations": {
+        "en": {
+          "prompt": "True or false: in an if...else structure, both blocks can run in the same execution.",
+          "concept": "Conditional structure",
+          "options": [
+            "True",
+            "False"
+          ],
+          "explanation": "False. Either the condition is true and the \"if\" block runs, or it is false and the \"else\" block runs. Never both."
+        },
+        "es": {
+          "prompt": "Verdadero o falso: en una estructura si...si no, los dos bloques pueden ejecutarse en la misma ejecución.",
+          "concept": "Estructura condicional",
+          "options": [
+            "Verdadero",
+            "Falso"
+          ],
+          "explanation": "Falso. O la condición es verdadera y se ejecuta el bloque \"si\", o es falsa y se ejecuta el bloque \"si no\". Nunca los dos."
+        },
+        "fr": {
+          "prompt": "Vrai ou faux : dans une structure si...sinon, les deux blocs peuvent s’exécuter lors de la même exécution.",
+          "concept": "Structure conditionnelle",
+          "options": [
+            "Vrai",
+            "Faux"
+          ],
+          "explanation": "Faux. Soit la condition est vraie et le bloc « si » s’exécute, soit elle est fausse et c’est le bloc « sinon ». Jamais les deux."
+        }
+      }
+    },
+    {
+      "prompt": "Qual será a saída do algoritmo?",
+      "concept": "Escolha/caso",
+      "code": "dia ← 3\nescolha dia\n    caso 1: escreva(\"Domingo\")\n    caso 2: escreva(\"Segunda\")\n    caso 3: escreva(\"Terça\")\n    outrocaso: escreva(\"Dia inválido\")\nfimescolha",
+      "options": [
+        "Domingo",
+        "Segunda",
+        "Terça",
+        "Dia inválido",
+        "Nada é exibido"
+      ],
+      "correctIndex": 2,
+      "explanation": "O valor de dia é 3, então o fluxo entra no \"caso 3\" e escreve \"Terça\". O \"outrocaso\" só roda quando nenhum caso corresponde.",
+      "translations": {
+        "en": {
+          "prompt": "What will the algorithm output?",
+          "concept": "Switch/case",
+          "options": [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Invalid day",
+            "Nothing is displayed"
+          ],
+          "explanation": "The value of day is 3, so the flow enters \"case 3\" and writes \"Tuesday\". The \"otherwise\" branch only runs when no case matches.",
+          "code": "day ← 3\nswitch day\n    case 1: write(\"Sunday\")\n    case 2: write(\"Monday\")\n    case 3: write(\"Tuesday\")\n    otherwise: write(\"Invalid day\")\nend switch"
+        },
+        "es": {
+          "prompt": "¿Cuál será la salida del algoritmo?",
+          "concept": "Según/caso",
+          "options": [
+            "Domingo",
+            "Lunes",
+            "Martes",
+            "Día no válido",
+            "No se muestra nada"
+          ],
+          "explanation": "El valor de dia es 3, así que el flujo entra en el \"caso 3\" y escribe \"Martes\". El \"de otro modo\" solo se ejecuta cuando ningún caso coincide.",
+          "code": "dia ← 3\nsegún dia\n    caso 1: escribir(\"Domingo\")\n    caso 2: escribir(\"Lunes\")\n    caso 3: escribir(\"Martes\")\n    de otro modo: escribir(\"Día no válido\")\nfin según"
+        },
+        "fr": {
+          "prompt": "Quelle sera la sortie de l’algorithme ?",
+          "concept": "Selon/cas",
+          "options": [
+            "Dimanche",
+            "Lundi",
+            "Mardi",
+            "Jour invalide",
+            "Rien n’est affiché"
+          ],
+          "explanation": "La valeur de jour est 3, le flux entre donc dans « cas 3 » et écrit « Mardi ». La branche « autrement » ne s’exécute que si aucun cas ne correspond.",
+          "code": "jour ← 3\nselon jour\n    cas 1 : écrire(\"Dimanche\")\n    cas 2 : écrire(\"Lundi\")\n    cas 3 : écrire(\"Mardi\")\n    autrement : écrire(\"Jour invalide\")\nfin selon"
+        }
+      }
+    },
+    {
+      "prompt": "Qual condição verifica corretamente se x está entre 10 e 20, incluindo os extremos?",
+      "concept": "Operadores lógicos",
+      "options": [
+        "x >= 10 E x <= 20",
+        "x >= 10 OU x <= 20",
+        "x > 10 E x < 20",
+        "NÃO (x >= 10)"
+      ],
+      "correctIndex": 0,
+      "explanation": "Precisamos das duas condições ao mesmo tempo, por isso o E. Com OU, qualquer número passaria; com > e < os extremos 10 e 20 ficariam de fora.",
+      "translations": {
+        "en": {
+          "prompt": "Which condition correctly checks whether x is between 10 and 20, inclusive?",
+          "concept": "Logical operators",
+          "options": [
+            "x >= 10 AND x <= 20",
+            "x >= 10 OR x <= 20",
+            "x > 10 AND x < 20",
+            "NOT (x >= 10)"
+          ],
+          "explanation": "Both conditions must hold at the same time, hence AND. With OR any number would pass; with > and < the limits 10 and 20 would be left out."
+        },
+        "es": {
+          "prompt": "¿Qué condición verifica correctamente si x está entre 10 y 20, incluidos los extremos?",
+          "concept": "Operadores lógicos",
+          "options": [
+            "x >= 10 Y x <= 20",
+            "x >= 10 O x <= 20",
+            "x > 10 Y x < 20",
+            "NO (x >= 10)"
+          ],
+          "explanation": "Necesitamos las dos condiciones al mismo tiempo, por eso Y. Con O pasaría cualquier número; con > y < los extremos 10 y 20 quedarían fuera."
+        },
+        "fr": {
+          "prompt": "Quelle condition vérifie correctement que x est entre 10 et 20, bornes comprises ?",
+          "concept": "Opérateurs logiques",
+          "options": [
+            "x >= 10 ET x <= 20",
+            "x >= 10 OU x <= 20",
+            "x > 10 ET x < 20",
+            "NON (x >= 10)"
+          ],
+          "explanation": "Les deux conditions doivent être vraies en même temps, d’où le ET. Avec OU, n’importe quel nombre passerait ; avec > et <, les bornes 10 et 20 seraient exclues."
+        }
+      }
+    },
+    {
+      "prompt": "Faça o teste de mesa: qual valor será exibido?",
+      "concept": "Teste de mesa",
+      "code": "a ← 5\nb ← 9\nse a > b então\n    maior ← a\nsenão\n    maior ← b\nfimse\nescreva(maior)",
+      "options": [
+        "5",
+        "9",
+        "14",
+        "a",
+        "b",
+        "erro de execução"
+      ],
+      "correctIndex": 1,
+      "explanation": "Como 5 > 9 é falso, executa o senão: maior ← b, ou seja, 9. O algoritmo encontra o maior entre dois números.",
+      "translations": {
+        "en": {
+          "prompt": "Desk-check it: what value will be displayed?",
+          "concept": "Desk checking",
+          "options": [
+            "5",
+            "9",
+            "14",
+            "a",
+            "b",
+            "runtime error"
+          ],
+          "explanation": "Since 5 > 9 is false, the else branch runs: largest ← b, that is, 9. The algorithm finds the larger of two numbers.",
+          "code": "a ← 5\nb ← 9\nif a > b then\n    largest ← a\nelse\n    largest ← b\nend if\nwrite(largest)"
+        },
+        "es": {
+          "prompt": "Haz la prueba de escritorio: ¿qué valor se mostrará?",
+          "concept": "Prueba de escritorio",
+          "options": [
+            "5",
+            "9",
+            "14",
+            "a",
+            "b",
+            "error de ejecución"
+          ],
+          "explanation": "Como 5 > 9 es falso, se ejecuta el si no: mayor ← b, es decir, 9. El algoritmo encuentra el mayor de dos números.",
+          "code": "a ← 5\nb ← 9\nsi a > b entonces\n    mayor ← a\nsi no\n    mayor ← b\nfin si\nescribir(mayor)"
+        },
+        "fr": {
+          "prompt": "Exécutez pas à pas : quelle valeur sera affichée ?",
+          "concept": "Exécution pas à pas",
+          "options": [
+            "5",
+            "9",
+            "14",
+            "a",
+            "b",
+            "erreur d’exécution"
+          ],
+          "explanation": "Comme 5 > 9 est faux, la branche sinon s’exécute : plusGrand ← b, soit 9. L’algorithme trouve le plus grand de deux nombres.",
+          "code": "a ← 5\nb ← 9\nsi a > b alors\n    plusGrand ← a\nsinon\n    plusGrand ← b\nfin si\nécrire(plusGrand)"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,353 @@
+{
+  "format": "logic-master-quiz",
+  "version": 1,
+  "authors": [
+    "Ramon Castro Barbosa",
+    "Maíra Bastos David de Assis"
+  ],
+  "license": "CC BY-NC-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  "source": "https://logic-master-web.ramon-cs-barbosa.workers.dev/quiz/estruturas-de-repeticao",
+  "repository": "https://github.com/ramoncbarbosa/logic-master",
+  "slug": "estruturas-de-repeticao",
+  "title": "Laços de repetição e teste de mesa",
+  "description": "Treine enquanto, para com passo, repita...até, acumuladores, laços aninhados e laço infinito com teste de mesa.",
+  "audience": "Ensino Médio Técnico e 1º período de Computação",
+  "objective": "Simular a execução de laços de repetição, contando iterações e acompanhando variáveis passo a passo.",
+  "translations": {
+    "en": {
+      "title": "Loops and desk checking",
+      "description": "Practice while, for with step, repeat...until, accumulators, nested loops and infinite loops with desk checking.",
+      "audience": "Technical high school and first-year Computing students",
+      "objective": "Simulate the execution of loops, counting iterations and tracking variables step by step."
+    },
+    "es": {
+      "title": "Bucles y prueba de escritorio",
+      "description": "Practica mientras, para con paso, repetir...hasta que, acumuladores, bucles anidados y bucle infinito con prueba de escritorio.",
+      "audience": "Educación media técnica y primer semestre de Computación",
+      "objective": "Simular la ejecución de bucles, contando iteraciones y siguiendo las variables paso a paso."
+    },
+    "fr": {
+      "title": "Boucles et exécution pas à pas",
+      "description": "Entraînez-vous avec tant que, pour avec pas, répéter...jusqu’à, les accumulateurs, les boucles imbriquées et la boucle infinie avec l’exécution pas à pas.",
+      "audience": "Lycée technique et première année d’informatique",
+      "objective": "Simuler l’exécution de boucles en comptant les itérations et en suivant les variables pas à pas."
+    }
+  },
+  "questions": [
+    {
+      "prompt": "Acompanhe o fluxograma e o pseudocódigo. Quais valores são exibidos, na ordem?",
+      "concept": "Enquanto",
+      "imageUrl": "/img/flowchart-while.svg",
+      "imageAlt": "Fluxograma do laço enquanto: contador recebe 3; enquanto contador maior que 0, escreve contador e diminui 1",
+      "code": "contador ← 3\nenquanto contador > 0 faça\n    escreva(contador)\n    contador ← contador - 1\nfimenquanto",
+      "options": [
+        "3 2 1",
+        "3 2 1 0",
+        "2 1 0",
+        "1 2 3"
+      ],
+      "correctIndex": 0,
+      "explanation": "Exibe 3, 2 e 1. Quando contador vale 0, a condição 0 > 0 é falsa e o laço termina antes de escrever.",
+      "translations": {
+        "en": {
+          "prompt": "Follow the flowchart and the pseudocode. Which values are displayed, in order?",
+          "concept": "While",
+          "options": [
+            "3 2 1",
+            "3 2 1 0",
+            "2 1 0",
+            "1 2 3"
+          ],
+          "explanation": "It writes 3, 2 and 1. When counter is 0, the condition 0 > 0 is false and the loop ends before writing.",
+          "imageUrl": "/img/en/flowchart-while.svg",
+          "imageAlt": "While loop flowchart: counter receives 3; while counter is greater than 0, write counter and subtract 1",
+          "code": "counter ← 3\nwhile counter > 0 do\n    write(counter)\n    counter ← counter - 1\nend while"
+        },
+        "es": {
+          "prompt": "Sigue el diagrama de flujo y el pseudocódigo. ¿Qué valores se muestran, en orden?",
+          "concept": "Mientras",
+          "options": [
+            "3 2 1",
+            "3 2 1 0",
+            "2 1 0",
+            "1 2 3"
+          ],
+          "explanation": "Muestra 3, 2 y 1. Cuando contador vale 0, la condición 0 > 0 es falsa y el bucle termina antes de escribir.",
+          "imageUrl": "/img/es/flowchart-while.svg",
+          "imageAlt": "Diagrama del bucle mientras: contador recibe 3; mientras contador sea mayor que 0, escribe contador y resta 1",
+          "code": "contador ← 3\nmientras contador > 0 hacer\n    escribir(contador)\n    contador ← contador - 1\nfin mientras"
+        },
+        "fr": {
+          "prompt": "Suivez l’organigramme et le pseudocode. Quelles valeurs sont affichées, dans l’ordre ?",
+          "concept": "Tant que",
+          "options": [
+            "3 2 1",
+            "3 2 1 0",
+            "2 1 0",
+            "1 2 3"
+          ],
+          "explanation": "Il affiche 3, 2 et 1. Quand compteur vaut 0, la condition 0 > 0 est fausse et la boucle s’arrête avant d’écrire.",
+          "imageUrl": "/img/fr/flowchart-while.svg",
+          "imageAlt": "Organigramme de la boucle tant que : compteur reçoit 3 ; tant que compteur est supérieur à 0, on écrit compteur et on retire 1",
+          "code": "compteur ← 3\ntant que compteur > 0 faire\n    écrire(compteur)\n    compteur ← compteur - 1\nfin tant que"
+        }
+      }
+    },
+    {
+      "prompt": "Quantas vezes o laço executa (valor exibido)?",
+      "concept": "Para com passo",
+      "code": "total ← 0\npara i de 1 até 10 passo 2 faça\n    total ← total + 1\nfimpara\nescreva(total)",
+      "options": [
+        "2",
+        "4",
+        "5",
+        "6",
+        "10"
+      ],
+      "correctIndex": 2,
+      "explanation": "Com passo 2, i assume 1, 3, 5, 7 e 9. São 5 repetições, então total termina em 5.",
+      "translations": {
+        "en": {
+          "prompt": "How many times does the loop run (value displayed)?",
+          "concept": "For with step",
+          "options": [
+            "2",
+            "4",
+            "5",
+            "6",
+            "10"
+          ],
+          "explanation": "With step 2, i takes 1, 3, 5, 7 and 9. That is 5 repetitions, so total ends at 5.",
+          "code": "total ← 0\nfor i from 1 to 10 step 2 do\n    total ← total + 1\nend for\nwrite(total)"
+        },
+        "es": {
+          "prompt": "¿Cuántas veces se ejecuta el bucle (valor mostrado)?",
+          "concept": "Para con paso",
+          "options": [
+            "2",
+            "4",
+            "5",
+            "6",
+            "10"
+          ],
+          "explanation": "Con paso 2, i toma 1, 3, 5, 7 y 9. Son 5 repeticiones, así que total termina en 5.",
+          "code": "total ← 0\npara i desde 1 hasta 10 con paso 2 hacer\n    total ← total + 1\nfin para\nescribir(total)"
+        },
+        "fr": {
+          "prompt": "Combien de fois la boucle s’exécute-t-elle (valeur affichée) ?",
+          "concept": "Pour avec pas",
+          "options": [
+            "2",
+            "4",
+            "5",
+            "6",
+            "10"
+          ],
+          "explanation": "Avec un pas de 2, i prend 1, 3, 5, 7 et 9. Cela fait 5 répétitions, donc total vaut 5 à la fin.",
+          "code": "total ← 0\npour i de 1 à 10 pas 2 faire\n    total ← total + 1\nfin pour\nécrire(total)"
+        }
+      }
+    },
+    {
+      "prompt": "Verdadeiro ou falso: um laço enquanto cuja condição nunca se torna falsa gera um laço infinito.",
+      "concept": "Laço infinito",
+      "options": [
+        "Verdadeiro",
+        "Falso"
+      ],
+      "correctIndex": 0,
+      "explanation": "Verdadeiro. Se nada dentro do laço altera a condição para falsa (por exemplo, esquecer de decrementar o contador), ele nunca termina.",
+      "translations": {
+        "en": {
+          "prompt": "True or false: a while loop whose condition never becomes false creates an infinite loop.",
+          "concept": "Infinite loop",
+          "options": [
+            "True",
+            "False"
+          ],
+          "explanation": "True. If nothing inside the loop makes the condition false (for example, forgetting to decrement the counter), it never ends."
+        },
+        "es": {
+          "prompt": "Verdadero o falso: un bucle mientras cuya condición nunca se vuelve falsa genera un bucle infinito.",
+          "concept": "Bucle infinito",
+          "options": [
+            "Verdadero",
+            "Falso"
+          ],
+          "explanation": "Verdadero. Si nada dentro del bucle vuelve falsa la condición (por ejemplo, olvidar decrementar el contador), nunca termina."
+        },
+        "fr": {
+          "prompt": "Vrai ou faux : une boucle tant que dont la condition ne devient jamais fausse crée une boucle infinie.",
+          "concept": "Boucle infinie",
+          "options": [
+            "Vrai",
+            "Faux"
+          ],
+          "explanation": "Vrai. Si rien dans la boucle ne rend la condition fausse (par exemple, oublier de décrémenter le compteur), elle ne s’arrête jamais."
+        }
+      }
+    },
+    {
+      "prompt": "Qual valor será exibido?",
+      "concept": "Repita...até",
+      "code": "x ← 10\nrepita\n    x ← x - 3\naté x < 0\nescreva(x)",
+      "options": [
+        "1",
+        "-2",
+        "-1",
+        "0"
+      ],
+      "correctIndex": 1,
+      "explanation": "x vale 10, 7, 4, 1 e -2. Só depois de chegar a -2 a condição x < 0 fica verdadeira e o laço para. O repita sempre executa pelo menos uma vez.",
+      "translations": {
+        "en": {
+          "prompt": "What value will be displayed?",
+          "concept": "Repeat...until",
+          "options": [
+            "1",
+            "-2",
+            "-1",
+            "0"
+          ],
+          "explanation": "x goes 10, 7, 4, 1 and -2. Only at -2 does the condition x < 0 become true and the loop stops. Repeat always runs at least once.",
+          "code": "x ← 10\nrepeat\n    x ← x - 3\nuntil x < 0\nwrite(x)"
+        },
+        "es": {
+          "prompt": "¿Qué valor se mostrará?",
+          "concept": "Repetir...hasta que",
+          "options": [
+            "1",
+            "-2",
+            "-1",
+            "0"
+          ],
+          "explanation": "x vale 10, 7, 4, 1 y -2. Solo al llegar a -2 la condición x < 0 es verdadera y el bucle se detiene. Repetir siempre se ejecuta al menos una vez.",
+          "code": "x ← 10\nrepetir\n    x ← x - 3\nhasta que x < 0\nescribir(x)"
+        },
+        "fr": {
+          "prompt": "Quelle valeur sera affichée ?",
+          "concept": "Répéter...jusqu’à",
+          "options": [
+            "1",
+            "-2",
+            "-1",
+            "0"
+          ],
+          "explanation": "x vaut 10, 7, 4, 1 puis -2. Ce n’est qu’à -2 que la condition x < 0 devient vraie et que la boucle s’arrête. Répéter s’exécute toujours au moins une fois.",
+          "code": "x ← 10\nrépéter\n    x ← x - 3\njusqu’à x < 0\nécrire(x)"
+        }
+      }
+    },
+    {
+      "prompt": "No fluxograma, se a condição mudar para i ≤ 5, qual valor será exibido?",
+      "concept": "Acumulador",
+      "imageUrl": "/img/flowchart-loop.svg",
+      "imageAlt": "Fluxograma de repetição: soma recebe 0, i de 1 até o limite, soma recebe soma mais i, ao final escreva soma",
+      "options": [
+        "10",
+        "12",
+        "15",
+        "20",
+        "21",
+        "5"
+      ],
+      "correctIndex": 2,
+      "explanation": "A soma acumula 1 + 2 + 3 + 4 + 5 = 15. A variável soma é um acumulador: guarda o resultado parcial a cada volta.",
+      "translations": {
+        "en": {
+          "prompt": "In the flowchart, if the condition changes to i ≤ 5, what value will be displayed?",
+          "concept": "Accumulator",
+          "options": [
+            "10",
+            "12",
+            "15",
+            "20",
+            "21",
+            "5"
+          ],
+          "explanation": "The sum accumulates 1 + 2 + 3 + 4 + 5 = 15. The variable sum is an accumulator: it keeps the partial result on each pass.",
+          "imageUrl": "/img/en/flowchart-loop.svg",
+          "imageAlt": "Loop flowchart: sum receives 0, i from 1 to the limit, sum receives sum plus i, at the end write sum"
+        },
+        "es": {
+          "prompt": "En el diagrama de flujo, si la condición cambia a i ≤ 5, ¿qué valor se mostrará?",
+          "concept": "Acumulador",
+          "options": [
+            "10",
+            "12",
+            "15",
+            "20",
+            "21",
+            "5"
+          ],
+          "explanation": "La suma acumula 1 + 2 + 3 + 4 + 5 = 15. La variable suma es un acumulador: guarda el resultado parcial en cada vuelta.",
+          "imageUrl": "/img/es/flowchart-loop.svg",
+          "imageAlt": "Diagrama de repetición: suma recibe 0, i desde 1 hasta el límite, suma recibe suma más i, al final escribir suma"
+        },
+        "fr": {
+          "prompt": "Dans l’organigramme, si la condition devient i ≤ 5, quelle valeur sera affichée ?",
+          "concept": "Accumulateur",
+          "options": [
+            "10",
+            "12",
+            "15",
+            "20",
+            "21",
+            "5"
+          ],
+          "explanation": "La somme accumule 1 + 2 + 3 + 4 + 5 = 15. La variable somme est un accumulateur : elle garde le résultat partiel à chaque tour.",
+          "imageUrl": "/img/fr/flowchart-loop.svg",
+          "imageAlt": "Organigramme de boucle : somme reçoit 0, i de 1 jusqu’à la limite, somme reçoit somme plus i, à la fin écrire somme"
+        }
+      }
+    },
+    {
+      "prompt": "Quantas vezes a instrução interna é executada (valor exibido)?",
+      "concept": "Laços aninhados",
+      "code": "cont ← 0\npara i de 1 até 3 faça\n    para j de 1 até 2 faça\n        cont ← cont + 1\n    fimpara\nfimpara\nescreva(cont)",
+      "options": [
+        "5",
+        "6",
+        "9"
+      ],
+      "correctIndex": 1,
+      "explanation": "O laço externo roda 3 vezes e, a cada volta, o interno roda 2 vezes: 3 × 2 = 6.",
+      "translations": {
+        "en": {
+          "prompt": "How many times does the inner instruction run (value displayed)?",
+          "concept": "Nested loops",
+          "options": [
+            "5",
+            "6",
+            "9"
+          ],
+          "explanation": "The outer loop runs 3 times and, on each pass, the inner loop runs 2 times: 3 × 2 = 6.",
+          "code": "count ← 0\nfor i from 1 to 3 do\n    for j from 1 to 2 do\n        count ← count + 1\n    end for\nend for\nwrite(count)"
+        },
+        "es": {
+          "prompt": "¿Cuántas veces se ejecuta la instrucción interna (valor mostrado)?",
+          "concept": "Bucles anidados",
+          "options": [
+            "5",
+            "6",
+            "9"
+          ],
+          "explanation": "El bucle externo se ejecuta 3 veces y, en cada vuelta, el interno se ejecuta 2 veces: 3 × 2 = 6.",
+          "code": "cont ← 0\npara i desde 1 hasta 3 hacer\n    para j desde 1 hasta 2 hacer\n        cont ← cont + 1\n    fin para\nfin para\nescribir(cont)"
+        },
+        "fr": {
+          "prompt": "Combien de fois l’instruction interne s’exécute-t-elle (valeur affichée) ?",
+          "concept": "Boucles imbriquées",
+          "options": [
+            "5",
+            "6",
+            "9"
+          ],
+          "explanation": "La boucle externe tourne 3 fois et, à chaque tour, la boucle interne tourne 2 fois : 3 × 2 = 6.",
+          "code": "compte ← 0\npour i de 1 à 3 faire\n    pour j de 1 à 2 faire\n        compte ← compte + 1\n    fin pour\nfin pour\nécrire(compte)"
+        }
+      }
+    }
+  ]
+}

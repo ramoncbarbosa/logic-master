@@ -11,7 +11,7 @@ L’idée est simple : permettre aux élèves de s’entraîner à la logique in
 
 ## Comment ça marche pour les élèves
 
-Il y a quatre quiz, dans une progression qui va des fondamentaux aux tables de vérité, aux structures conditionnelles et aux boucles. Trois d’entre eux commencent par une vidéo d’accompagnement, qui change selon la langue choisie.
+Il y a quatre quiz, dans une progression qui va des fondamentaux aux tables de vérité, aux structures conditionnelles et aux boucles. Chaque quiz peut aussi être téléchargé en JSON ou ouvert dans une version imprimable avec corrigé commenté, et propose un bloc **Comment citer** avec la référence prête à l’emploi.
 
 Vous choisissez un quiz, indiquez votre nom et votre e-mail, puis lisez les conditions d’utilisation des données. Les questions s’affichent une par écran. Certaines montrent des portes logiques, des tables de vérité ou des organigrammes ; d’autres proposent du pseudocode à exécuter pas à pas ; il y a aussi des questions vrai ou faux et d’autres avec jusqu’à six réponses. Dès que vous validez votre réponse, l’explication du raisonnement s’affiche, que vous ayez raison ou non.
 
@@ -27,6 +27,7 @@ L’enseignant dispose de son propre espace, avec connexion, où il peut :
 - voir sur des graphiques les questions les plus ratées par la classe et les mauvaises réponses les plus choisies, ce qui révèle souvent la confusion derrière l’erreur ;
 - suivre les résultats par notion et par jour ;
 - voir sur un globe d’où les élèves ont répondu ;
+- importer et exporter des quiz en JSON, pour transférer le contenu d’une installation à une autre ;
 - consulter la liste des participants et tout exporter en CSV ;
 - suivre l’évaluation de l’utilisabilité (questionnaire SUS) à laquelle les élèves répondent à la fin du quiz, avec score moyen, classement, graphiques, commentaires et export CSV.
 
@@ -40,6 +41,12 @@ Tout fonctionne sur Cloudflare, avec l’offre gratuite :
 
 L’API n’a pas d’adresse publique : seul le Worker du site communique avec elle. Il est donc impossible de falsifier l’IP ou la localisation de la personne qui répond. De plus, le projet limite les requêtes par IP, bloque l’accès après plusieurs mots de passe erronés, utilise des en-têtes de sécurité, et les données personnelles sont anonymisées automatiquement après 180 jours.
 
+## Où se trouve le contenu
+
+Le contenu des quiz se trouve dans [`content/quizzes/`](content/quizzes), un fichier JSON par quiz, dans le même format que le bouton **Télécharger le quiz**. Les migrations créent seulement les tables ; la base de données est remplie à partir de ces fichiers avec `pnpm content:seed` (local) ou `pnpm content:seed --remote` (production). La commande n’ajoute que les quiz absents de la base, elle peut donc être lancée plusieurs fois.
+
+Les images des questions se trouvent dans `web/public/img` et ont été créées pour ce projet, sous la même licence.
+
 ## Le lancer sur votre machine
 
 Il vous faut Node 22 ou plus récent et [pnpm](https://pnpm.io).
@@ -52,7 +59,7 @@ pnpm db:reset:local
 pnpm preview
 ```
 
-Le site s’ouvre sur http://localhost:8787. `db:reset:local` crée la base de données avec les quatre quiz et un compte enseignant de test, défini dans `.dev.vars`. Sur l’écran de connexion, le bouton **Utiliser le compte de test** remplit les identifiants pour vous.
+Le site s’ouvre sur http://localhost:8787. `db:reset:local` crée la base de données avec les quatre quiz de `content/quizzes` et un compte enseignant de test, défini dans `.dev.vars`. Sur l’écran de connexion, le bouton **Utiliser le compte de test** remplit les identifiants pour vous.
 
 Si vous travaillez sur l’interface, lancez `pnpm dev:api` et `pnpm dev:web` dans deux terminaux pour avoir le rechargement automatique.
 
@@ -67,6 +74,7 @@ Le projet est ouvert justement pour que d’autres enseignants puissent l’util
 
    ```bash
    pnpm db:migrate:remote
+   pnpm content:seed --remote
    pnpm --filter api exec wrangler secret put JWT_SECRET
    pnpm run deploy
    ```

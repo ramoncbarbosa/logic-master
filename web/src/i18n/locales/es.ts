@@ -103,6 +103,29 @@ const es: Translation = {
     preparing: 'Preparando…',
     start: 'Empezar quiz',
     viewRanking: 'Ver ranking',
+    print: 'Versión para imprimir',
+    download: 'Descargar quiz (JSON)',
+    downloadAria: 'Descargar el contenido de {{title}} en JSON',
+  },
+  citation: {
+    title: 'Cómo citar',
+    copy: 'Copiar',
+    copied: 'Referencia copiada',
+    copyError: 'No se pudo copiar. Selecciona el texto y cópialo manualmente.',
+    resourceType: 'Recurso educativo abierto, quiz interactivo',
+    licenseText:
+      'Recurso Educativo Abierto bajo la licencia {{license}}: puedes usarlo, adaptarlo y compartirlo, siempre que cites la fuente, no lo uses con fines comerciales y mantengas la misma licencia.',
+  },
+  print: {
+    docTitle: '{{title}} — versión para imprimir',
+    back: 'Volver al quiz',
+    print: 'Imprimir o guardar en PDF',
+    withAnswers: 'Incluir solucionario comentado',
+    audience: 'Público objetivo',
+    objective: 'Objetivo',
+    questions: 'Preguntas',
+    answers: 'Solucionario comentado',
+    answer: 'Respuesta {{letter}}: {{option}}',
   },
   ready: {
     title: '¡Todo listo, {{name}}!',
@@ -244,6 +267,11 @@ const es: Translation = {
     deleteText_other:
       'El quiz, sus preguntas y los {{count}} intentos registrados se eliminarán de forma permanente. Esta acción no se puede deshacer.',
     deleted: 'Quiz eliminado',
+    import: 'Importar quiz',
+    importing: 'Importando…',
+    importInvalid: 'Archivo no válido. Elige un JSON exportado por Logic Master.',
+    imported: 'Quiz importado como borrador ({{slug}}). Revísalo y publícalo cuando quieras.',
+    export: 'Descargar {{title}} en JSON',
   },
   editor: {
     docNew: 'Nuevo quiz',
