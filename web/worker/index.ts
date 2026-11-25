@@ -34,15 +34,35 @@ app.all('/api/*', async (c) => {
   const headers = new Headers(req.headers)
   for (const h of [...headers.keys()]) if (h.startsWith('x-lm-')) headers.delete(h)
   headers.delete('x-forwarded-for')
-  const cf = (req as Request & { cf?: IncomingRequestCfProperties }).cf
-  if (cf?.country) headers.set('x-lm-country', String(cf.country))
-  if (cf?.region) headers.set('x-lm-region', encodeURIComponent(String(cf.region)))
-  if (cf?.city) headers.set('x-lm-city', encodeURIComponent(String(cf.city)))
-  if (cf?.latitude && cf?.longitude) {
-    headers.set('x-lm-lat', String(cf.latitude))
-    headers.set('x-lm-lon', String(cf.longitude))
-  }
   const res = await c.env.API.fetch(new Request(req, { headers }))
+  if (res.ok && req.method === 'GET' && new URL(req.url).pathname.endsWith('/export.json')) {
+    const data = await res.json() as Record<string, unknown>
+    const images = new Map<string, Promise<string>>()
+    const embed = async (value: unknown): Promise<unknown> => {
+      if (Array.isArray(value)) return Promise.all(value.map(embed))
+      if (!value || typeof value !== 'object') return value
+      return Object.fromEntries(await Promise.all(Object.entries(value).map(async ([key, v]) => {
+        if ((key === 'imageUrl' || key === 'coverImage') && typeof v === 'string' && v.startsWith('/') && !v.startsWith('//')) {
+          if (!images.has(v)) images.set(v, (async () => {
+            const asset = await c.env.ASSETS.fetch(new Request(new URL(v, req.url)))
+            const type = asset.headers.get('Content-Type')?.split(';')[0]
+            if (!asset.ok || !type || !/^image\/(svg\+xml|png|jpeg|gif|webp|avif)$/.test(type)) return new URL(v, req.url).href
+            const bytes = new Uint8Array(await asset.arrayBuffer())
+            if (bytes.length > 250000) return new URL(v, req.url).href
+            let binary = ''
+            for (const byte of bytes) binary += String.fromCharCode(byte)
+            return `data:${type};base64,${btoa(binary)}`
+          })())
+          return [key, await images.get(v)]
+        }
+        return [key, await embed(v)]
+      })))
+    }
+    const exportHeaders = new Headers(res.headers)
+    exportHeaders.delete('Content-Length')
+    exportHeaders.delete('ETag')
+    return new Response(JSON.stringify(await embed(data), null, 2), { status: res.status, headers: exportHeaders })
+  }
   return new Response(res.body, res)
 })
 

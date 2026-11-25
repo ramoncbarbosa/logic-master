@@ -9,7 +9,6 @@ import { noStore } from './middleware/no-store'
 import { rateLimit } from './middleware/rate-limit'
 import { sameOriginJson } from './middleware/same-origin-json'
 import { adminRoutes } from './routes/admin'
-import { attemptRoutes } from './routes/attempts'
 import { authRoutes } from './routes/auth'
 import { publicRoutes } from './routes/public'
 import type { AppEnv } from './types'
@@ -24,7 +23,6 @@ app.use('*', bodyLimit({ maxSize: MAX_BODY_BYTES, onError: (c) => fail(c, 413, '
 app.use('*', sameOriginJson)
 
 app.route('/', publicRoutes)
-app.route('/', attemptRoutes)
 app.route('/auth', authRoutes)
 app.route('/admin', adminRoutes)
 

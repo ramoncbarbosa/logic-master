@@ -13,11 +13,10 @@ adminSusRoutes.get('/', async (c) => c.json(await susSummary(c.env.DB, scopeOf(c
 
 adminSusRoutes.get('/export.csv', async (c) => {
   const rows = await susRows(c.env.DB, scopeOf(c.get('ownerId'), c.req.query('quiz')))
-  const data = rows.map(({ score, comment, ...rest }) => ({
+  const data = rows.map(({ score, ...rest }) => ({
     ...rest,
     score: score.toFixed(1),
     grade: t(c, `grade.${susGrade(score)}`),
-    comment,
   }))
   return c.body(toCsv(t(c, 'susCsvHeader').split(','), data), 200, {
     'Content-Type': 'text/csv; charset=utf-8',

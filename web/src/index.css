@@ -160,16 +160,6 @@
 .driver-popover.lm-tour .driver-popover-arrow-side-top.driver-popover-arrow { border-top-color: var(--popover); }
 .driver-popover.lm-tour .driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: var(--popover); }
 
-@keyframes globe-pulse {
-  0% { transform: scale(0.4); opacity: 0.9; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-.globe-pulse {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: globe-pulse 1.8s ease-out infinite;
-}
-
 .theme-switching *,
 .theme-switching *::before,
 .theme-switching *::after {

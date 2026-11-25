@@ -1,4 +1,4 @@
-import { EXPORT_FORMAT, EXPORT_VERSION, LICENSE_URL, REPOSITORY_URL, RESOURCE_AUTHORS } from '../config'
+import { CONTENT_LICENSES, EXPORT_FORMAT, EXPORT_VERSION, REPOSITORY_URL } from '../config'
 import type { QuestionRow, QuizRow } from '../types'
 import { getQuizTranslations } from './content'
 
@@ -19,9 +19,11 @@ export async function buildQuizExport(db: D1Database, quiz: QuizRow, origin: str
   return {
     format: EXPORT_FORMAT,
     version: EXPORT_VERSION,
-    authors: RESOURCE_AUTHORS,
+    authors: JSON.parse(quiz.authors),
     license: quiz.license,
-    licenseUrl: LICENSE_URL,
+    licenseUrl: CONTENT_LICENSES[quiz.license],
+    attribution: JSON.parse(quiz.attribution),
+    changes: quiz.changes,
     source: `${origin}/quiz/${quiz.slug}`,
     repository: REPOSITORY_URL,
     ...compact({

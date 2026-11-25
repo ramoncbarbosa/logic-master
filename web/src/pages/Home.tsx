@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'motion/react'
-import { ArrowRight, Clock, ListChecks, Sparkles, Trophy } from 'lucide-react'
+import { ArrowRight, Clock, ListChecks, Sparkles } from 'lucide-react'
 import { api, type QuizMeta } from '@/lib/api'
 import { useDocumentTitle } from '@/lib/use-document-title'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -97,11 +97,6 @@ export default function Home() {
                   <Button asChild size="lg" className="flex-1 rounded-full">
                     <Link to={`/quiz/${q.slug}`} aria-label={t('home.startAria', { title: q.title })}>
                       {t('home.start')} <ArrowRight className="transition-transform group-hover:translate-x-0.5" aria-hidden />
-                    </Link>
-                  </Button>
-                  <Button asChild size="lg" variant="outline" className="flex-1 rounded-full">
-                    <Link to={`/quiz/${q.slug}/ranking`} aria-label={t('home.rankingAria', { title: q.title })}>
-                      <Trophy aria-hidden /> {t('home.ranking')}
                     </Link>
                   </Button>
                 </div>

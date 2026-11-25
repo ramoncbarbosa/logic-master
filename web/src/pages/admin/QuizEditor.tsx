@@ -22,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 type BaseQuestion = Omit<QuizInput['questions'][number], 'translations'>
@@ -79,7 +80,7 @@ export default function QuizEditor() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [slugTouched, setSlugTouched] = useState(!!quizId)
-  const [hasAttempts, setHasAttempts] = useState(false)
+  const [licenses, setLicenses] = useState<string[]>([])
   const [lang, setLang] = useState<Locale>('pt')
   const [meta, setMeta] = useState<Meta>({
     slug: '',
@@ -90,6 +91,9 @@ export default function QuizEditor() {
     coverImage: null,
     videoUrl: null,
     license: 'CC BY-NC-SA 4.0',
+    authors: [],
+    attribution: [],
+    changes: '',
     published: false,
   })
   const [quizTr, setQuizTr] = useState<Translations<QuizTranslation>>({})
@@ -98,9 +102,11 @@ export default function QuizEditor() {
   const trLocale = lang as TranslatableLocale
 
   useEffect(() => {
+    api.config().then((c) => setLicenses(Object.keys(c.licenses))).catch((e) => setError(e.message))
+    if (!quizId) api.me().then((owner) => setMeta((m) => ({ ...m, authors: m.authors.length ? m.authors : [owner.name] }))).catch((e) => setError(e.message))
     if (!quizId) return
-    Promise.all([api.admin.getQuiz(quizId), api.admin.stats(quizId)])
-      .then(([q, s]) => {
+    api.admin.getQuiz(quizId)
+      .then((q) => {
         setMeta({
           slug: q.slug,
           title: q.title,
@@ -110,6 +116,9 @@ export default function QuizEditor() {
           coverImage: q.coverImage,
           videoUrl: q.videoUrl,
           license: q.license,
+          authors: q.authors,
+          attribution: q.attribution,
+          changes: q.changes,
           published: q.published,
         })
         setQuizTr(q.translations ?? {})
@@ -128,7 +137,6 @@ export default function QuizEditor() {
             translations: x.translations ?? {},
           })),
         )
-        setHasAttempts(s.summary.attempts > 0)
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
@@ -158,6 +166,7 @@ export default function QuizEditor() {
     setSaving(true)
     const input: QuizInput = {
       ...meta,
+      authors: meta.authors.map((name) => name.trim()).filter(Boolean),
       videoUrl: meta.videoUrl || null,
       coverImage: meta.coverImage || null,
       translations: Object.fromEntries(
@@ -214,11 +223,6 @@ export default function QuizEditor() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      {hasAttempts && isBase && (
-        <Alert>
-          <AlertDescription>{t('editor.hasAttempts')}</AlertDescription>
-        </Alert>
-      )}
 
       <div className="space-y-2">
         <p className="flex items-center gap-2 text-sm font-medium">
@@ -236,12 +240,12 @@ export default function QuizEditor() {
                 aria-selected={selected}
                 onClick={() => setLang(l.code)}
                 className={cn(
-                  'flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors',
+                  'flex min-w-0 flex-wrap items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors',
                   selected ? 'border-primary bg-accent text-accent-foreground' : 'hover:bg-muted',
                 )}
               >
                 <span aria-hidden>{l.flag}</span>
-                <span className="flex-1 font-medium">{t(`languages.${l.code}`)}</span>
+                <span className="min-w-0 flex-1 break-words font-medium">{t(`languages.${l.code}`)}</span>
                 <span className="text-xs text-muted-foreground tabular-nums">
                   {done === null ? t('editor.base') : `${done}/${questions.length}`}
                 </span>
@@ -298,7 +302,29 @@ export default function QuizEditor() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="license">{t('editor.license')}</Label>
-              <Input id="license" value={meta.license} onChange={(e) => setMeta({ ...meta, license: e.target.value })} />
+              <Select value={meta.license} onValueChange={(license) => setMeta({ ...meta, license })}>
+                <SelectTrigger id="license" className="w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>{licenses.map((license) => <SelectItem key={license} value={license}>{license}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="authors">{t('editor.authors')}</Label>
+              <Textarea id="authors" required value={meta.authors.join('\n')} onChange={(e) => setMeta({ ...meta, authors: e.target.value.split('\n') })} aria-describedby="authors-hint" />
+              <p id="authors-hint" className="text-xs text-muted-foreground">{t('editor.authorsHint')}</p>
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="changes">{t('editor.changes')}</Label>
+              <Textarea id="changes" required={meta.attribution.length > 0} maxLength={1000} value={meta.changes} onChange={(e) => setMeta({ ...meta, changes: e.target.value })} aria-describedby="changes-hint" />
+              <p id="changes-hint" className="text-xs text-muted-foreground">{t('editor.changesHint')}</p>
+              {meta.attribution.length > 0 && <div className="space-y-2 rounded-lg border p-3 text-sm">
+                <p className="font-medium">{t('editor.attribution')}</p>
+                <ul className="space-y-2">{meta.attribution.map((source, i) => <li key={i}>
+                  <a href={source.source} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">{source.title}</a>
+                  {' · '}{source.authors.join('; ')}{' · '}
+                  <a href={source.licenseUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">{source.license}</a>
+                  {source.changes && <p>{source.changes}</p>}
+                </li>)}</ul>
+              </div>}
             </div>
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="objective">{t('editor.objective')}</Label>
@@ -370,7 +396,7 @@ export default function QuizEditor() {
       {questions.map((q, i) =>
         isBase ? (
           <Card key={q.key}>
-            <CardHeader className="flex-row items-center gap-2">
+            <CardHeader className="flex flex-wrap items-center gap-2">
               <CardTitle className="mr-auto">
                 <h2>{t('editor.question', { n: i + 1 })}</h2>
               </CardTitle>
@@ -521,7 +547,7 @@ function TranslationCard({
   const done = !!tr.prompt.trim()
   return (
     <Card className={cn(!done && 'border-dashed')}>
-      <CardHeader className="flex-row items-center gap-2">
+      <CardHeader className="flex flex-wrap items-center gap-2">
         <CardTitle className="mr-auto">
           <h2>{t('editor.question', { n })}</h2>
         </CardTitle>

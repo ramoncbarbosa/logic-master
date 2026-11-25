@@ -1,4 +1,5 @@
 import type { QuestionRow, QuizRow } from '../types'
+import { CONTENT_LICENSES } from '../config'
 
 export const parseOptions = (q: QuestionRow): string[] => JSON.parse(q.options)
 
@@ -29,6 +30,10 @@ export const toQuizMeta = (q: QuizRow) => ({
   coverImage: q.cover_image,
   videoUrl: q.video_url,
   license: q.license,
+  licenseUrl: CONTENT_LICENSES[q.license],
+  authors: JSON.parse(q.authors) as string[],
+  attribution: JSON.parse(q.attribution),
+  changes: q.changes,
   published: !!q.published,
   createdAt: q.created_at,
   updatedAt: q.updated_at,

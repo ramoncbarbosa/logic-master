@@ -5,10 +5,9 @@ export type Bindings = {
   JWT_SECRET: string
   DEV_OWNER_EMAIL?: string
   DEV_OWNER_PASSWORD?: string
-  ALLOWED_EMAIL_DOMAINS?: string
   RL_GLOBAL?: RateLimit
   RL_AUTH?: RateLimit
-  RL_ATTEMPT?: RateLimit
+  RL_SUS?: RateLimit
 }
 
 export type Variables = {
@@ -37,6 +36,9 @@ export type QuizRow = {
   cover_image: string | null
   video_url: string | null
   license: string
+  authors: string
+  attribution: string
+  changes: string
   published: number
   created_at: string
   updated_at: string
@@ -89,6 +91,15 @@ export type QuestionInput = {
   translations: Translations<QuestionTranslationInput>
 }
 
+export type Attribution = {
+  title: string
+  authors: string[]
+  source: string
+  license: string
+  licenseUrl: string
+  changes: string
+}
+
 export type QuizInput = {
   slug: string
   title: string
@@ -98,6 +109,9 @@ export type QuizInput = {
   coverImage?: string | null
   videoUrl?: string | null
   license?: string
+  authors: string[]
+  attribution: Attribution[]
+  changes: string
   published?: boolean
   questions: QuestionInput[]
   translations: Translations<QuizTranslationInput>

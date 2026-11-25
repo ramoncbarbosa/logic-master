@@ -1,7 +1,7 @@
 import { BASE_LOCALE, TRANSLATABLE_LOCALES, type Locale } from '../lib/i18n'
 import type { QuestionRow, QuizRow, QuizInput, Translations, QuestionTranslationInput, QuizTranslationInput } from '../types'
 
-const QUIZ_COLUMNS = `q.id, q.owner_id, q.slug, q.cover_image, q.license, q.published, q.created_at, q.updated_at,
+const QUIZ_COLUMNS = `q.id, q.owner_id, q.slug, q.cover_image, q.license, q.authors, q.attribution, q.changes, q.published, q.created_at, q.updated_at,
   COALESCE(NULLIF(t.video_url, ''), q.video_url) AS video_url,
   COALESCE(NULLIF(t.title, ''), q.title) AS title, COALESCE(NULLIF(t.description, ''), q.description) AS description,
   COALESCE(NULLIF(t.audience, ''), q.audience) AS audience, COALESCE(NULLIF(t.objective, ''), q.objective) AS objective`

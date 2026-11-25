@@ -17,6 +17,9 @@ const quizValues = (input: QuizInput) => [
   input.coverImage ?? null,
   input.videoUrl ?? null,
   input.license ?? DEFAULT_LICENSE,
+  JSON.stringify(input.authors),
+  JSON.stringify(input.attribution),
+  input.changes,
   input.published ? 1 : 0,
 ]
 
@@ -52,8 +55,8 @@ function questionStatements(db: D1Database, quizId: number, input: QuizInput) {
 export async function createQuiz(db: D1Database, ownerId: number, input: QuizInput) {
   const res = await db
     .prepare(
-      `INSERT INTO quizzes (slug, title, description, audience, objective, cover_image, video_url, license, published, owner_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO quizzes (slug, title, description, audience, objective, cover_image, video_url, license, authors, attribution, changes, published, owner_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(...quizValues(input), ownerId)
     .run()
@@ -74,7 +77,7 @@ export async function updateQuiz(db: D1Database, quizId: number, input: QuizInpu
     db
       .prepare(
         `UPDATE quizzes SET slug = ?, title = ?, description = ?, audience = ?, objective = ?, cover_image = ?, video_url = ?,
-           license = ?, published = ?, updated_at = datetime('now') WHERE id = ?`,
+           license = ?, authors = ?, attribution = ?, changes = ?, published = ?, updated_at = datetime('now') WHERE id = ?`,
       )
       .bind(...quizValues(input), quizId),
     deleteRemoved,

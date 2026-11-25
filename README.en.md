@@ -13,9 +13,9 @@ The idea is simple: let students practice computational logic through quizzes.
 
 There are four quizzes, in a sequence that goes from the fundamentals to truth tables, conditional structures and loops. Each quiz can also be downloaded as JSON or opened in a printable version with an answer key, and it has a **How to cite** block with a ready-made reference.
 
-You pick a quiz, enter your name and e-mail, and read the data use terms. Questions appear one per screen. Some show logic gates, truth tables or flowcharts; others show pseudocode for you to desk-check; there are also true-or-false questions and others with up to six options. As soon as you confirm your answer, the explanation of the reasoning appears, whether you got it right or not.
+You choose a quiz and practice without registering. Answers and results stay on the page. Questions appear one per screen. Some show logic gates, truth tables or flowcharts; others show pseudocode for you to desk-check; there are also true-or-false questions and others with up to six options. As soon as you confirm your answer, the explanation of the reasoning appears, whether you got it right or not.
 
-At the end you see your score, your time, how you did on each concept and a full review of the questions. Each quiz has a public leaderboard: each person's best attempt counts, ranked first by correct answers and then, in case of a tie, by the shortest time. The leaderboard only shows the first name and the initial of the last name.
+At the end you see your score, time, performance by concept and a full review. You can then voluntarily answer the SUS survey without identification or links to your quiz answers.
 
 The whole platform, including the quiz content, is available in Portuguese, English, Spanish and French. The language is picked automatically from the browser and can be changed with the language icon.
 
@@ -24,12 +24,8 @@ The whole platform, including the quiz content, is available in Portuguese, Engl
 Teachers have their own area, with login, where they can:
 
 - create and edit quizzes (prompt, options, image, code, video and explanation), with the translation of each question into the other languages;
-- see in charts which questions the class missed the most and which wrong options were chosen the most, which usually reveals the misconception behind the mistake;
-- follow performance by concept and by day;
-- see on a globe where students answered from;
 - import and export quizzes as JSON, to move content from one installation to another;
-- browse the list of participants and export everything as CSV;
-- follow the usability evaluation (SUS questionnaire) students answer at the end of the quiz, with average score, grade, charts, comments and CSV export.
+- consult voluntary usability evaluations (SUS), with mean, median, score distribution and CSV export, without student identification data.
 
 ## What it is made of
 
@@ -39,7 +35,7 @@ Everything runs on Cloudflare, on the free plan:
 - **database**: [D1](https://developers.cloudflare.com/d1/) (SQLite).
 - **web/**: front end with React, Vite, Tailwind and [shadcn/ui](https://ui.shadcn.com), served by another Worker, which also forwards `/api` calls to the API.
 
-The API has no public address: only the site's Worker talks to it. That makes it impossible to fake the IP or location of whoever answers. On top of that, the project has per-IP rate limiting, lockout after several wrong passwords and security headers, and personal data is automatically anonymized after 180 days.
+The API is accessed through the site’s Worker. The quiz does not store attempts or identify students. The application stores only the ten SUS ratings, score, evaluated quiz and date without a time; the daily retention routine deletes surveys after 180 days. Administration uses login, rate limiting and temporary lockout after incorrect passwords.
 
 ## Where the content lives
 
@@ -69,8 +65,7 @@ The project is open precisely so that other teachers can use and adapt it. To ge
 
 1. Fork this repository.
 2. Create the database in your Cloudflare account with `pnpm wrangler d1 create logic-master-db` and put the generated `database_id` in `api/wrangler.jsonc`.
-3. If you only want to accept e-mails from your institution, put the domain in `ALLOWED_EMAIL_DOMAINS` (in the same file). Leaving it empty accepts any e-mail.
-4. Set up the database and deploy:
+3. Set up the database and deploy:
 
    ```bash
    pnpm db:migrate:remote
@@ -79,7 +74,7 @@ The project is open precisely so that other teachers can use and adapt it. To ge
    pnpm run deploy
    ```
 
-5. Create your teacher account (the password is asked in the terminal):
+4. Create your teacher account (the password is asked in the terminal):
 
    ```bash
    pnpm professor --email you@yourinstitution.edu --name "Your Name" --remote

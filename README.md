@@ -13,9 +13,9 @@ A ideia é simples: permitir que os alunos pratiquem lógica computacional por m
 
 Hoje são quatro quizzes, numa sequência que vai dos fundamentos às tabelas-verdade, às estruturas condicionais e aos laços de repetição. Cada quiz também pode ser baixado em JSON ou aberto numa versão para impressão, com gabarito comentado, e traz um bloco **Como citar** com a referência pronta.
 
-Você escolhe um quiz, informa nome e e-mail e lê o termo de uso dos dados. As questões aparecem uma por tela. Algumas trazem portas lógicas, tabelas-verdade ou fluxogramas; outras trazem pseudocódigo para você fazer o teste de mesa; há também questões de verdadeiro ou falso e outras com até seis alternativas. Assim que você confirma a resposta, aparece a explicação do raciocínio, certo ou errado.
+Você escolhe um quiz e pratica sem cadastro. As respostas e o resultado ficam apenas na página. As questões aparecem uma por tela. Algumas trazem portas lógicas, tabelas-verdade ou fluxogramas; outras trazem pseudocódigo para você fazer o teste de mesa; há também questões de verdadeiro ou falso e outras com até seis alternativas. Assim que você confirma a resposta, aparece a explicação do raciocínio, certo ou errado.
 
-No final você vê a nota, o tempo, como foi em cada conceito e a revisão completa das questões. Cada quiz tem um ranking público: vale a melhor tentativa de cada pessoa, primeiro por acertos e, no empate, pelo menor tempo. No ranking aparecem só o primeiro nome e a inicial do sobrenome.
+No final você vê a nota, o tempo, como foi em cada conceito e a revisão completa das questões. Depois, pode responder voluntariamente ao SUS, sem identificação nem vínculo com as respostas do quiz.
 
 A plataforma inteira, incluindo o conteúdo dos quizzes, está em português, inglês, espanhol e francês. O idioma é escolhido automaticamente pelo navegador e pode ser trocado no ícone de idiomas.
 
@@ -25,12 +25,8 @@ A plataforma inteira, incluindo o conteúdo dos quizzes, está em português, in
 O professor entra numa área própria, com login, onde pode:
 
 - criar e editar quizzes (enunciado, alternativas, imagem, código, vídeo e explicação), com a tradução de cada questão para os outros idiomas;
-- ver em gráficos quais questões a turma mais errou e quais alternativas erradas foram mais escolhidas, o que costuma revelar a confusão por trás do erro;
-- acompanhar o desempenho por conceito e por dia;
-- ver num globo de onde os alunos responderam;
 - importar e exportar quizzes em JSON, para levar o conteúdo de uma instalação para outra;
-- consultar a lista de participantes e exportar tudo em CSV;
-- acompanhar a avaliação de usabilidade (questionário SUS) que os alunos respondem ao final do quiz, com nota média, classificação, gráficos, comentários e exportação em CSV.
+- acompanhar as avaliações voluntárias de usabilidade (SUS), com média, mediana, distribuição das notas e exportação em CSV, sem dados de identificação dos estudantes.
 
 ## Do que é feito
 
@@ -40,7 +36,7 @@ Tudo roda na Cloudflare, no plano gratuito:
 - **database**: [D1](https://developers.cloudflare.com/d1/) (SQLite).
 - **web/**: front-end em React, Vite, Tailwind e [shadcn/ui](https://ui.shadcn.com), servido por outro Worker, que também encaminha as chamadas `/api` para a API.
 
-A API não tem endereço público: só o Worker do site conversa com ela. Por isso não dá para forjar o IP ou a localização de quem responde, para além disso o projeto também tem limite de requisições por IP, bloqueio depois de várias senhas erradas e cabeçalhos de segurança, e os dados pessoais são anonimizados automaticamente depois de 180 dias.
+A API é acessada pelo Worker do site. O quiz não grava tentativas nem identifica estudantes. A aplicação armazena somente as dez respostas do SUS, a pontuação, o quiz avaliado e a data, sem horário; essas avaliações são excluídas pela rotina diária após 180 dias. O acesso administrativo usa login, limite de requisições e bloqueio temporário após senhas incorretas.
 
 ## Onde fica o conteúdo
 
@@ -70,8 +66,7 @@ O projeto é aberto justamente para que outros professores possam usá-lo e adap
 
 1. Faça um fork deste repositório.
 2. Crie o banco na sua conta Cloudflare com `pnpm wrangler d1 create logic-master-db` e coloque o `database_id` gerado em `api/wrangler.jsonc`.
-3. Se quiser aceitar só e-mails da sua instituição, coloque o domínio em `ALLOWED_EMAIL_DOMAINS` (no mesmo arquivo). Vazio aceita qualquer e-mail.
-4. Aplique o banco e publique:
+3. Aplique o banco e publique:
 
    ```bash
    pnpm db:migrate:remote
@@ -80,7 +75,7 @@ O projeto é aberto justamente para que outros professores possam usá-lo e adap
    pnpm run deploy
    ```
 
-5. Crie o seu acesso de professor (a senha é pedida no terminal):
+4. Crie o seu acesso de professor (a senha é pedida no terminal):
 
    ```bash
    pnpm professor --email voce@suainstituicao.edu.br --name "Seu Nome" --remote

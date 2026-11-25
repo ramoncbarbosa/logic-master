@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import {
+  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   CircleHelp,
@@ -16,18 +16,14 @@ import {
   RotateCcw,
   Square,
   Target,
-  Trophy,
   Volume2,
   XCircle,
 } from 'lucide-react'
 import {
   api,
-  ApiError,
   type AnswerResult,
   type FinishResult,
-  type PublicConfig,
   type PublicQuiz,
-  type Ranking,
 } from '@/lib/api'
 import { languageTag } from '@/i18n'
 import { formatDuration } from '@/lib/format'
@@ -37,19 +33,16 @@ import { runTour, runTourOnce } from '@/lib/tour'
 import { useDocumentTitle } from '@/lib/use-document-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { LogoMark } from '@/components/Layout'
-import ConsentText from '@/components/ConsentText'
 import QuizCitation from '@/components/QuizCitation'
-import RankingTable from '@/components/RankingTable'
 import { learningResource, useJsonLd } from '@/lib/citation'
 import SusSurvey from '@/components/SusSurvey'
 import { cn } from '@/lib/utils'
+import { PrivacyContent } from './Privacy'
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 
 type Phase = 'intro' | 'ready' | 'playing' | 'result'
 type Reviewed = { questionId: number; selected: number; result: AnswerResult }
@@ -58,33 +51,26 @@ const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
 const EASE = [0.22, 1, 0.36, 1] as const
 
 const phaseMotion = {
-  initial: { opacity: 0, y: 24, scale: 0.98, filter: 'blur(6px)' },
-  animate: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' },
-  exit: { opacity: 0, y: -24, scale: 0.98, filter: 'blur(6px)' },
-  transition: { duration: 0.45, ease: EASE },
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -8 },
+  transition: { duration: 0.22, ease: EASE },
 }
 
 export default function QuizPlay() {
   const { slug = '' } = useParams()
   const { i18n } = useTranslation()
   const [quiz, setQuiz] = useState<PublicQuiz | null>(null)
-  const [config, setConfig] = useState<PublicConfig | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [phase, setPhase] = useState<Phase>('intro')
-  const [attemptId, setAttemptId] = useState<string | null>(null)
-  const [playerName, setPlayerName] = useState('')
+  const started = useRef(0)
   const [index, setIndex] = useState(0)
   const [reviewed, setReviewed] = useState<Reviewed[]>([])
   const [final, setFinal] = useState<FinishResult | null>(null)
   useDocumentTitle(quiz?.title)
 
   useEffect(() => {
-    Promise.all([api.getQuiz(slug), api.config()])
-      .then(([q, c]) => {
-        setQuiz(q)
-        setConfig(c)
-      })
-      .catch((e) => setError(e.message))
+    api.getQuiz(slug).then(setQuiz).catch((e) => setError(e.message))
     return stopSpeaking
   }, [slug, i18n.language])
 
@@ -93,16 +79,10 @@ export default function QuizPlay() {
     setPhase(p)
   }
 
-  if (error)
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>{error}</AlertDescription>
-      </Alert>
-    )
-  if (!quiz || !config) return <Skeleton className="mx-auto h-[28rem] max-w-3xl rounded-xl" />
+  if (error) return <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>
+  if (!quiz) return <Skeleton className="mx-auto h-[28rem] max-w-3xl rounded-xl" />
 
   const restart = () => {
-    setAttemptId(null)
     setIndex(0)
     setReviewed([])
     setFinal(null)
@@ -111,71 +91,45 @@ export default function QuizPlay() {
 
   return (
     <AnimatePresence mode="wait" initial={false}>
-      {phase === 'intro' && (
-        <motion.div key="intro" {...phaseMotion}>
-          <Intro
-            quiz={quiz}
-            config={config}
-            onStart={(id, name) => {
-              setAttemptId(id)
-              setPlayerName(name)
-              goTo('ready')
-            }}
-          />
-        </motion.div>
-      )}
-
-      {phase === 'ready' && (
-        <motion.div key="ready" {...phaseMotion}>
-          <Ready name={playerName} total={quiz.questions.length} onDone={() => goTo('playing')} />
-        </motion.div>
-      )}
-
-      {phase === 'playing' && attemptId && (
-        <motion.div key="playing" {...phaseMotion} className="mx-auto max-w-3xl">
-          <AnimatePresence mode="wait" initial={false}>
-            <QuestionStep
-              key={quiz.questions[index].id}
-              quiz={quiz}
-              index={index}
-              attemptId={attemptId}
-              onAnswered={(r) => setReviewed((s) => [...s, r])}
-              onNext={async () => {
-                if (index + 1 < quiz.questions.length) {
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
-                  return setIndex(index + 1)
-                }
-                try {
-                  setFinal(await api.finish(attemptId))
-                  goTo('result')
-                } catch (e) {
-                  toast.error((e as Error).message)
-                }
-              }}
-            />
-          </AnimatePresence>
-        </motion.div>
-      )}
-
-      {phase === 'result' && final && attemptId && (
-        <motion.div key="result" {...phaseMotion} className="mx-auto max-w-3xl">
-          <Result quiz={quiz} final={final} attemptId={attemptId} reviewed={reviewed} onRestart={restart} />
-        </motion.div>
-      )}
+      {phase === 'intro' && <motion.div key="intro" {...phaseMotion}>
+        <Intro quiz={quiz} onStart={() => goTo('ready')} />
+      </motion.div>}
+      {phase === 'ready' && <motion.div key="ready" {...phaseMotion}>
+        <Ready total={quiz.questions.length} onDone={() => { started.current = Date.now(); goTo('playing') }} />
+      </motion.div>}
+      {phase === 'playing' && <motion.div key="playing" {...phaseMotion} className="mx-auto max-w-3xl">
+        <AnimatePresence mode="wait" initial={false}>
+          <QuestionStep key={quiz.questions[index].id} quiz={quiz} index={index}
+            onAnswered={(r) => setReviewed((s) => [...s, r])}
+            onNext={() => {
+              if (index + 1 < quiz.questions.length) {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+                return setIndex(index + 1)
+              }
+              setFinal({
+                score: reviewed.filter((r) => r.result.correct).length,
+                total: quiz.questions.length,
+                seconds: Math.round((Date.now() - started.current) / 1000),
+                byConcept: [...new Set(quiz.questions.map((q) => q.concept))].map((concept) => {
+                  const questions = quiz.questions.filter((q) => q.concept === concept)
+                  return { concept, total: questions.length, correct: questions.filter((q) => reviewed.some((r) => r.questionId === q.id && r.result.correct)).length }
+                }),
+              })
+              goTo('result')
+            }} />
+        </AnimatePresence>
+      </motion.div>}
+      {phase === 'result' && final && <motion.div key="result" {...phaseMotion} className="mx-auto max-w-3xl">
+        <Result quiz={quiz} final={final} reviewed={reviewed} onRestart={restart} />
+      </motion.div>}
     </AnimatePresence>
   )
 }
 
-function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConfig; onStart: (attemptId: string, name: string) => void }) {
+function Intro({ quiz, onStart }: { quiz: PublicQuiz; onStart: () => void }) {
   const { t, i18n } = useTranslation()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [consent, setConsent] = useState(false)
-  const [busy, setBusy] = useState(false)
-  const [formError, setFormError] = useState<string | null>(null)
+  const [showVideo, setShowVideo] = useState(false)
   const embed = toEmbedUrl(quiz.videoUrl)
-  const domains = config.allowedEmailDomains
-  const domainList = domains.map((d) => `@${d}`).join(', ')
   const concepts = useMemo(() => [...new Set(quiz.questions.map((q) => q.concept).filter(Boolean))], [quiz])
   const minutes = Math.max(1, Math.round((quiz.questions.length * 45) / 60))
   const pageUrl = `${window.location.origin}/quiz/${quiz.slug}`
@@ -190,9 +144,9 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
       inLanguage: languageTag(i18n.language),
       audience: quiz.audience,
       teaches: concepts,
-      authors: config.authors,
+      authors: quiz.authors,
       license: quiz.license,
-      licenseUrl: config.licenseUrl,
+      licenseUrl: quiz.licenseUrl,
       downloadUrl: `${window.location.origin}${api.exportUrl(quiz.slug)}`,
       dateCreated: quiz.createdAt,
       dateModified: quiz.updatedAt,
@@ -201,43 +155,14 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
 
   useEffect(() => runTourOnce('intro', 900), [])
 
-  const emailDomain = /^[^\s@]+@([^\s@]+\.[^\s@]+)$/.exec(email.trim().toLowerCase())?.[1]
-  const emailOk = !!emailDomain && (domains.length === 0 || domains.includes(emailDomain))
-
-  async function submit(ev: FormEvent) {
-    ev.preventDefault()
-    setFormError(null)
-    if (!name.trim()) return setFormError(t('intro.errName'))
-    if (!emailDomain) return setFormError(t('intro.errEmail'))
-    if (!emailOk) return setFormError(t('intro.errEmailDomain', { domains: domainList }))
-    if (!consent) return setFormError(t('intro.errConsent'))
-    setBusy(true)
-    try {
-      const { attemptId } = await api.startAttempt(quiz.slug, {
-        playerName: name.trim(),
-        playerEmail: email.trim().toLowerCase(),
-        consent,
-        consentVersion: config.consentVersion,
-      })
-      onStart(attemptId, name.trim())
-    } catch (e) {
-      setFormError(e instanceof ApiError ? e.message : t('common.connectionError'))
-      setBusy(false)
-    }
-  }
-
   return (
+    <Dialog>
     <div className="grid gap-8 lg:grid-cols-[1fr_minmax(0,26rem)] lg:items-start">
       <section id="tour-summary" className="min-w-0 space-y-6 lg:sticky lg:top-24">
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
             <Button variant="ghost" size="sm" className="-ml-3 text-muted-foreground" onClick={() => runTour('intro')}>
               <CircleHelp aria-hidden /> {t('intro.howItWorks')}
-            </Button>
-            <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
-              <Link to={`/quiz/${quiz.slug}/ranking`}>
-                <Trophy aria-hidden /> {t('intro.viewRanking')}
-              </Link>
             </Button>
             <Button variant="ghost" size="sm" className="text-muted-foreground" asChild>
               <Link to={`/quiz/${quiz.slug}/imprimir`}>
@@ -268,6 +193,17 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
           ))}
         </dl>
 
+        {(quiz.audience || quiz.objective) && <dl className="space-y-3 text-sm">
+          {quiz.audience && <div className="space-y-1">
+            <dt className="font-medium">{t('print.audience')}</dt>
+            <dd className="text-muted-foreground">{quiz.audience}</dd>
+          </div>}
+          {quiz.objective && <div className="space-y-1">
+            <dt className="font-medium">{t('print.objective')}</dt>
+            <dd className="text-muted-foreground">{quiz.objective}</dd>
+          </div>}
+        </dl>}
+
         {concepts.length > 0 && (
           <div className="space-y-2">
             <p className="text-sm font-medium">{t('intro.practice')}</p>
@@ -284,24 +220,29 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
         )}
 
         {embed && (
-          <div className="aspect-video overflow-hidden rounded-xl border shadow-sm">
+          <div className="space-y-2 rounded-xl border p-3 shadow-sm">
+            {!showVideo ? <Button variant="outline" onClick={() => setShowVideo(true)}>{t('intro.loadVideo')}</Button> : (
             <iframe
               src={embed}
               title={t('intro.video', { title: quiz.title })}
-              className="size-full"
+              className="aspect-video w-full"
               allow="accelerometer; encrypted-media; picture-in-picture"
               allowFullScreen
               loading="lazy"
             />
+            )}
+            <p className="text-xs text-muted-foreground">{t('intro.externalMedia')}</p>
           </div>
         )}
 
         <QuizCitation
           title={quiz.title}
           year={year}
-          authors={config.authors}
+          authors={quiz.authors}
           license={quiz.license}
-          licenseUrl={config.licenseUrl}
+          licenseUrl={quiz.licenseUrl}
+          attribution={quiz.attribution}
+          changes={quiz.changes}
           url={pageUrl}
         />
       </section>
@@ -311,77 +252,37 @@ function Intro({ quiz, config, onStart }: { quiz: PublicQuiz; config: PublicConf
           <CardTitle>
             <h2 className="text-xl">{t('intro.beforeStart')}</h2>
           </CardTitle>
-          <CardDescription>{t('intro.identify')}</CardDescription>
+          <CardDescription>{t('intro.freeNotice')}</CardDescription>
         </CardHeader>
-        <form onSubmit={submit} noValidate>
-          <CardContent className="space-y-4">
-            <div id="tour-name" className="space-y-2">
-              <Label htmlFor="name">{t('intro.name')}</Label>
-              <Input id="name" autoComplete="name" required maxLength={60} value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div id="tour-email" className="space-y-2">
-              <Label htmlFor="email">{t('intro.email')}</Label>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                inputMode="email"
-                required
-                maxLength={200}
-                placeholder={t('intro.emailPlaceholder')}
-                aria-describedby="email-hint"
-                aria-invalid={email.length > 0 && !emailOk}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <p id="email-hint" className={cn('text-xs', email && !emailOk ? 'text-destructive' : 'text-muted-foreground')}>
-                {domains.length ? t('intro.emailHintDomains', { domains: domainList }) : t('intro.emailHint')}
-              </p>
-            </div>
-
-            <div id="tour-consent" className="space-y-3">
-              <div className="max-h-40 overflow-y-auto rounded-lg border bg-muted/50 p-3" tabIndex={0} aria-label={t('intro.consentBox')}>
-                <ConsentText />
-              </div>
-              <div className="flex items-start gap-3">
-                <Checkbox id="consent" checked={consent} onCheckedChange={(v) => setConsent(v === true)} aria-required />
-                <Label htmlFor="consent" className="text-sm leading-snug font-normal">
-                  <span>
-                    {t('intro.consentAgree')}{' '}
-                    <Link to="/privacidade" className="underline underline-offset-2" target="_blank">
-                      {t('intro.privacyLink')}
-                    </Link>
-                  </span>
-                </Label>
-              </div>
-            </div>
-
-            <AnimatePresence>
-              {formError && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                  <Alert variant="destructive" role="alert">
-                    <AlertDescription>{formError}</AlertDescription>
-                  </Alert>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </CardContent>
-          <CardFooter className="pt-6">
-            <Button id="tour-start" type="submit" size="lg" disabled={busy || !consent} className="w-full rounded-full">
-              {busy ? t('intro.preparing') : t('intro.start')} <Play aria-hidden />
-            </Button>
-          </CardFooter>
-        </form>
+        <CardContent>
+          <DialogTrigger asChild>
+            <button type="button" className="text-left text-sm underline underline-offset-2">{t('intro.privacyLink')}</button>
+          </DialogTrigger>
+        </CardContent>
+        <CardFooter>
+          <Button id="tour-start" size="lg" onClick={onStart} className="w-full rounded-full">
+            {t('intro.start')} <Play aria-hidden />
+          </Button>
+        </CardFooter>
       </Card>
     </div>
+    <DialogContent showCloseButton={false} aria-describedby={undefined} className="max-h-[85dvh] grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden p-0 sm:max-w-3xl motion-reduce:animate-none">
+      <DialogHeader className="flex-row items-center gap-4 border-b p-4">
+        <DialogClose asChild>
+          <Button variant="outline"><ArrowLeft aria-hidden /> {t('common.back')}</Button>
+        </DialogClose>
+        <DialogTitle>{t('privacy.title')}</DialogTitle>
+      </DialogHeader>
+      <div className="min-h-0 overflow-y-auto p-4 sm:p-6"><PrivacyContent /></div>
+    </DialogContent>
+    </Dialog>
   )
 }
 
-function Ready({ name, total, onDone }: { name: string; total: number; onDone: () => void }) {
+function Ready({ total, onDone }: { total: number; onDone: () => void }) {
   const { t } = useTranslation()
   const reduce = useReducedMotion()
   const [count, setCount] = useState(3)
-  const firstName = name.split(/\s+/)[0]
 
   useEffect(() => {
     if (reduce) {
@@ -406,7 +307,7 @@ function Ready({ name, total, onDone }: { name: string; total: number; onDone: (
         <LogoMark className="size-16 rounded-2xl text-3xl" />
       </motion.div>
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t('ready.title', { name: firstName })}</h1>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{t('ready.practiceTitle')}</h1>
         <p className="text-muted-foreground">{t('ready.text', { count: total })}</p>
       </div>
       <div className="relative grid size-24 place-items-center">
@@ -439,13 +340,11 @@ function Ready({ name, total, onDone }: { name: string; total: number; onDone: (
 function QuestionStep({
   quiz,
   index,
-  attemptId,
   onAnswered,
   onNext,
 }: {
   quiz: PublicQuiz
   index: number
-  attemptId: string
   onAnswered: (r: Reviewed) => void
   onNext: () => void
 }) {
@@ -454,8 +353,6 @@ function QuestionStep({
   const { sound } = usePreferences()
   const [selected, setSelected] = useState<number | null>(null)
   const [result, setResult] = useState<AnswerResult | null>(null)
-  const [busy, setBusy] = useState(false)
-  const started = useRef(performance.now())
   const headingRef = useRef<HTMLHeadingElement>(null)
   const feedbackRef = useRef<HTMLDivElement>(null)
   const total = quiz.questions.length
@@ -476,26 +373,15 @@ function QuestionStep({
     speak(`${t('question.speakQuestion', { n: index + 1, prompt: q.prompt })} ${q.code ? t('question.speakCode') : ''} ${opts}`, languageTag())
   }
 
-  const confirm = useCallback(async () => {
-    if (selected === null || result || busy) return
-    setBusy(true)
-    try {
-      const r = await api.answer(attemptId, {
-        questionId: q.id,
-        selectedIndex: selected,
-        timeMs: Math.round(performance.now() - started.current),
-      })
-      setResult(r)
-      onAnswered({ questionId: q.id, selected, result: r })
-      if (sound) playFeedback(r.correct)
-      setTimeout(() => feedbackRef.current?.focus({ preventScroll: true }), 80)
-      setTimeout(() => feedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 250)
-    } catch (e) {
-      toast.error((e as Error).message)
-    } finally {
-      setBusy(false)
-    }
-  }, [selected, result, busy, attemptId, q.id, onAnswered, sound])
+  const confirm = useCallback(() => {
+    if (selected === null || result) return
+    const r = { correct: selected === q.correctIndex, correctIndex: q.correctIndex, explanation: q.explanation }
+    setResult(r)
+    onAnswered({ questionId: q.id, selected, result: r })
+    if (sound) playFeedback(r.correct)
+    setTimeout(() => feedbackRef.current?.focus({ preventScroll: true }), 80)
+    setTimeout(() => feedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 250)
+  }, [selected, result, q, onAnswered, sound])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -513,10 +399,10 @@ function QuestionStep({
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 48 }}
+      initial={{ opacity: 0, x: 16 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -48 }}
-      transition={{ duration: 0.35, ease: EASE }}
+      exit={{ opacity: 0, x: -16 }}
+      transition={{ duration: 0.22, ease: EASE }}
       className="space-y-5"
     >
       <div id="tour-progress" className="space-y-2">
@@ -589,7 +475,7 @@ function QuestionStep({
             </pre>
           )}
 
-          <fieldset id="tour-options" disabled={!!result || busy}>
+          <fieldset id="tour-options" disabled={!!result}>
             <legend className="sr-only">{t('question.options')}</legend>
             <div className="grid gap-2.5">
               {q.options.map((opt, i) => {
@@ -676,7 +562,7 @@ function QuestionStep({
             <kbd className="rounded border px-1">Enter</kbd> {t('question.shortcutConfirm')}
           </p>
           {!result ? (
-            <Button id="tour-confirm" size="lg" className="w-full rounded-full sm:w-auto" onClick={confirm} disabled={selected === null || busy}>
+            <Button id="tour-confirm" size="lg" className="w-full rounded-full sm:w-auto" onClick={confirm} disabled={selected === null}>
               {t('question.confirm')}
             </Button>
           ) : (
@@ -728,26 +614,20 @@ function ScoreRing({ pct }: { pct: number }) {
 function Result({
   quiz,
   final,
-  attemptId,
   reviewed,
   onRestart,
 }: {
   quiz: PublicQuiz
   final: FinishResult
-  attemptId: string
   reviewed: Reviewed[]
   onRestart: () => void
 }) {
   const { t } = useTranslation()
-  const [ranking, setRanking] = useState<Ranking | null>(null)
   const pct = final.total ? Math.round((final.score / final.total) * 100) : 0
   const message = pct >= 90 ? t('result.msgExcellent') : pct >= 70 ? t('result.msgGood') : pct >= 50 ? t('result.msgFair') : t('result.msgLow')
   const headingRef = useRef<HTMLHeadingElement>(null)
 
   useEffect(() => headingRef.current?.focus({ preventScroll: true }), [])
-  useEffect(() => {
-    api.ranking(quiz.slug, { limit: 5, attempt: attemptId }).then(setRanking).catch(() => {})
-  }, [quiz.slug, attemptId])
 
   return (
     <div className="space-y-6">
@@ -768,33 +648,10 @@ function Result({
             <Link to="/">{t('result.otherQuizzes')}</Link>
           </Button>
         </div>
+        <p className="px-4 text-sm text-muted-foreground">{t('result.practiceNotice')}</p>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Trophy className="size-5 text-primary" aria-hidden />
-            <h2>{t('ranking.title')}</h2>
-          </CardTitle>
-          {ranking?.me && (
-            <CardDescription>
-              {ranking.me.isThisAttempt
-                ? t('ranking.yourPosition', { position: ranking.me.position, count: ranking.players })
-                : t('ranking.yourBest', { position: ranking.me.position, count: ranking.players })}
-            </CardDescription>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {ranking ? <RankingTable ranking={ranking} /> : <Skeleton className="h-40 w-full" />}
-          <Button variant="outline" className="w-full rounded-full sm:w-auto" asChild>
-            <Link to={`/quiz/${quiz.slug}/ranking?attempt=${attemptId}`}>
-              {t('ranking.full')} <ArrowRight aria-hidden />
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-
-      <SusSurvey attemptId={attemptId} />
+      <SusSurvey quizSlug={quiz.slug} />
 
       <Card>
         <CardHeader>

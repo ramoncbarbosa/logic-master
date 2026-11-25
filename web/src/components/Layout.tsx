@@ -1,4 +1,5 @@
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, useLocation, useOutlet } from 'react-router-dom'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import AccessibilityMenu from './AccessibilityMenu'
 import GitHubLink from './GitHubLink'
@@ -29,6 +30,9 @@ export function LogoMark({ className }: { className?: string }) {
 
 export default function Layout() {
   const { t } = useTranslation()
+  const { pathname } = useLocation()
+  const outlet = useOutlet()
+  const reducedMotion = useReducedMotion()
   return (
     <div className="app-bg flex min-h-dvh flex-col overflow-x-clip">
       <a href="#conteudo" className="skip-link print:hidden">
@@ -60,8 +64,19 @@ export default function Layout() {
         </div>
       </header>
 
-      <main id="conteudo" className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:py-10 print:max-w-none print:p-0" tabIndex={-1}>
-        <Outlet />
+      <main id="conteudo" className="mx-auto min-w-0 w-full max-w-5xl flex-1 px-4 py-6 sm:py-10 print:max-w-none print:p-0" tabIndex={-1}>
+        <AnimatePresence mode="wait" initial={false} onExitComplete={() => window.scrollTo({ top: 0, behavior: 'instant' })}>
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: reducedMotion ? 0 : 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: reducedMotion ? 0 : -4 }}
+            transition={{ duration: reducedMotion ? 0 : 0.18, ease: 'easeOut' }}
+            className="min-w-0"
+          >
+            {outlet}
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
   )

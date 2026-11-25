@@ -4,7 +4,6 @@ import { toast } from 'sonner'
 import { BarChart3, Download, ExternalLink, FileUp, LogOut, Pencil, Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api, type Owner, type QuizMeta } from '@/lib/api'
-import { formatPercent } from '@/lib/format'
 import { useDocumentTitle } from '@/lib/use-document-title'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -78,21 +77,21 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="mr-auto min-w-0">
+      <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap sm:gap-3">
+        <div className="col-span-2 mr-auto min-w-0">
           <h1 className="text-2xl font-bold sm:text-3xl">{t('dashboard.title')}</h1>
           {owner && <p className="text-muted-foreground">{t('dashboard.hello', { name: owner.name })}</p>}
         </div>
-        <Button asChild>
+        <Button asChild className="min-w-0 w-full sm:w-auto">
           <Link to="/admin/quiz/novo">
             <Plus aria-hidden /> {t('dashboard.newQuiz')}
           </Link>
         </Button>
-        <Button variant="outline" onClick={() => fileInput.current?.click()} disabled={importing}>
+        <Button variant="outline" className="min-w-0 w-full sm:w-auto" onClick={() => fileInput.current?.click()} disabled={importing}>
           <FileUp aria-hidden /> {importing ? t('dashboard.importing') : t('dashboard.import')}
         </Button>
         <input ref={fileInput} type="file" accept="application/json,.json" className="hidden" onChange={importFile} />
-        <Button variant="outline" onClick={logout}>
+        <Button variant="outline" className="col-span-2 w-full sm:w-auto" onClick={logout}>
           <LogOut aria-hidden /> {t('dashboard.logout')}
         </Button>
       </div>
@@ -110,32 +109,24 @@ export default function Dashboard() {
             <p className="text-muted-foreground">{t('dashboard.empty')}</p>
           ) : (
             <>
-              <ul className="divide-y md:hidden">
+              <ul className="divide-y lg:hidden">
                 {quizzes.map((q) => (
-                  <li key={q.id} className="space-y-3 py-4 first:pt-0 last:pb-0">
+                  <li key={q.id} className="min-w-0 space-y-3 py-4 first:pt-0 last:pb-0">
                     <div className="flex items-start gap-2">
-                      <p className="min-w-0 flex-1 font-medium">{q.title}</p>
+                      <p className="min-w-0 flex-1 break-words font-medium">{q.title}</p>
                       {q.published ? <Badge>{t('dashboard.published')}</Badge> : <Badge variant="outline">{t('dashboard.draft')}</Badge>}
                     </div>
-                    <dl className="grid grid-cols-3 gap-2 text-center text-xs">
+                    <dl className="grid grid-cols-1 gap-2 text-center text-xs">
                       <div className="rounded-lg bg-muted/60 p-2">
                         <dt className="text-muted-foreground">{t('dashboard.colQuestions')}</dt>
                         <dd className="text-base font-semibold tabular-nums">{q.questionCount}</dd>
-                      </div>
-                      <div className="rounded-lg bg-muted/60 p-2">
-                        <dt className="text-muted-foreground">{t('dashboard.colAttempts')}</dt>
-                        <dd className="text-base font-semibold tabular-nums">{q.attemptCount}</dd>
-                      </div>
-                      <div className="rounded-lg bg-muted/60 p-2">
-                        <dt className="text-muted-foreground">{t('dashboard.colAverage')}</dt>
-                        <dd className="text-base font-semibold tabular-nums">{formatPercent(q.avgPct)}</dd>
                       </div>
                     </dl>
                     <QuizActions quiz={q} onDelete={remove} stretch />
                   </li>
                 ))}
               </ul>
-              <div className="hidden md:block">
+              <div className="hidden lg:block">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -143,8 +134,6 @@ export default function Dashboard() {
                       <TableHead>{t('dashboard.colStatus')}</TableHead>
                       <TableHead>{t('dashboard.colLanguages')}</TableHead>
                       <TableHead className="text-right">{t('dashboard.colQuestions')}</TableHead>
-                      <TableHead className="text-right">{t('dashboard.colAttempts')}</TableHead>
-                      <TableHead className="text-right">{t('dashboard.colAverage')}</TableHead>
                       <TableHead className="text-right">{t('dashboard.colActions')}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -157,8 +146,6 @@ export default function Dashboard() {
                         </TableCell>
                         <TableCell className="text-xs uppercase text-muted-foreground">{(q.locales ?? ['pt']).join(' · ')}</TableCell>
                         <TableCell className="text-right tabular-nums">{q.questionCount}</TableCell>
-                        <TableCell className="text-right tabular-nums">{q.attemptCount}</TableCell>
-                        <TableCell className="text-right tabular-nums">{formatPercent(q.avgPct)}</TableCell>
                         <TableCell>
                           <QuizActions quiz={q} onDelete={remove} />
                         </TableCell>
@@ -180,24 +167,24 @@ export default function Dashboard() {
 function QuizActions({ quiz: q, onDelete, stretch = false }: { quiz: QuizMeta; onDelete: (q: QuizMeta) => void; stretch?: boolean }) {
   const { t } = useTranslation()
   return (
-    <div className={stretch ? 'flex gap-2' : 'flex justify-end gap-1'}>
-      <Button size="sm" asChild className={stretch ? 'h-10 flex-1' : undefined}>
+    <div className={stretch ? 'grid min-w-0 grid-cols-4 gap-2' : 'flex justify-end gap-1'}>
+      <Button size="sm" asChild className={stretch ? 'col-span-4 h-11 w-full' : undefined}>
         <Link to={`/admin/quiz/${q.id}/dados`}>
           <BarChart3 aria-hidden /> {t('dashboard.data')}
         </Link>
       </Button>
-      <Button size="icon" variant="outline" asChild className={stretch ? 'size-10' : undefined}>
+      <Button size="icon" variant="outline" asChild className={stretch ? 'h-11 w-full' : undefined}>
         <Link to={`/admin/quiz/${q.id}/editar`} aria-label={t('dashboard.edit', { title: q.title })}>
           <Pencil aria-hidden />
         </Link>
       </Button>
-      <Button size="icon" variant="outline" asChild className={stretch ? 'size-10' : undefined}>
+      <Button size="icon" variant="outline" asChild className={stretch ? 'h-11 w-full' : undefined}>
         <a href={api.admin.exportUrl(q.id)} download={`${q.slug}.json`} aria-label={t('dashboard.export', { title: q.title })}>
           <Download aria-hidden />
         </a>
       </Button>
       {q.published && (
-        <Button size="icon" variant="outline" asChild className={stretch ? 'size-10' : undefined}>
+        <Button size="icon" variant="outline" asChild className={stretch ? 'h-11 w-full' : undefined}>
           <Link to={`/quiz/${q.slug}`} aria-label={t('dashboard.open', { title: q.title })}>
             <ExternalLink aria-hidden />
           </Link>
@@ -205,7 +192,7 @@ function QuizActions({ quiz: q, onDelete, stretch = false }: { quiz: QuizMeta; o
       )}
       <Dialog>
         <DialogTrigger asChild>
-          <Button size="icon" variant="outline" aria-label={t('dashboard.deleteAria', { title: q.title })} className={stretch ? 'size-10' : undefined}>
+          <Button size="icon" variant="outline" aria-label={t('dashboard.deleteAria', { title: q.title })} className={stretch ? 'h-11 w-full' : undefined}>
             <Trash2 aria-hidden />
           </Button>
         </DialogTrigger>
@@ -213,7 +200,7 @@ function QuizActions({ quiz: q, onDelete, stretch = false }: { quiz: QuizMeta; o
           <DialogHeader>
             <DialogTitle>{t('dashboard.deleteTitle', { title: q.title })}</DialogTitle>
             <DialogDescription>
-              {t('dashboard.deleteText', { count: q.attemptCount ?? 0 })}
+              {t('dashboard.deleteText')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -1,10 +1,11 @@
 import { Hono } from 'hono'
-import { CONSENT_VERSION, LICENSE_URL, REPOSITORY_URL, RESOURCE_AUTHORS, allowedEmailDomains } from '../config'
+import { CONTENT_LICENSES } from '../config'
 import { LOCALES, fail } from '../lib/i18n'
-import { toPublicQuestion, toQuizMeta } from '../lib/mappers'
+import { toOwnerQuestion, toQuizMeta } from '../lib/mappers'
+import { isValidSusAnswers, susScore } from '../lib/sus'
+import { rateLimit } from '../middleware/rate-limit'
 import { getLocalizedQuestions, localizedQuizSql } from '../services/content'
 import { buildQuizExport, exportHeaders } from '../services/export'
-import { quizRanking } from '../services/ranking'
 import type { AppEnv, QuizRow } from '../types'
 
 export const publicRoutes = new Hono<AppEnv>()
@@ -13,12 +14,8 @@ publicRoutes.get('/health', (c) => c.json({ ok: true }))
 
 publicRoutes.get('/config', (c) =>
   c.json({
-    allowedEmailDomains: allowedEmailDomains(c.env),
-    consentVersion: CONSENT_VERSION,
     locales: LOCALES,
-    authors: RESOURCE_AUTHORS,
-    repository: REPOSITORY_URL,
-    licenseUrl: LICENSE_URL,
+    licenses: CONTENT_LICENSES,
   }),
 )
 
@@ -50,7 +47,7 @@ publicRoutes.get('/quizzes/:slug', async (c) => {
     .first<QuizRow>()
   if (!quiz) return fail(c, 404, 'quizNotFound')
   const questions = await getLocalizedQuestions(c.env.DB, quiz.id, locale)
-  return c.json({ ...toQuizMeta(quiz), questions: questions.map(toPublicQuestion) })
+  return c.json({ ...toQuizMeta(quiz), questions: questions.map(toOwnerQuestion) })
 })
 
 publicRoutes.get('/quizzes/:slug/export.json', async (c) => {
@@ -62,11 +59,19 @@ publicRoutes.get('/quizzes/:slug/export.json', async (c) => {
   return c.body(JSON.stringify(data, null, 2), 200, exportHeaders(quiz.slug))
 })
 
-publicRoutes.get('/quizzes/:slug/ranking', async (c) => {
+publicRoutes.post('/quizzes/:slug/sus', rateLimit('RL_SUS', 'sus'), async (c) => {
+  const body = await c.req.json<{ id?: unknown; answers?: unknown }>().catch(() => null)
+  if (!body || typeof body.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.id)
+    || !isValidSusAnswers(body.answers)) return fail(c, 400, 'susInvalid')
   const quiz = await c.env.DB.prepare('SELECT id FROM quizzes WHERE slug = ? AND published = 1')
     .bind(c.req.param('slug'))
     .first<{ id: number }>()
   if (!quiz) return fail(c, 404, 'quizNotFound')
-  const limit = Math.min(Math.max(Number(c.req.query('limit')) || 10, 1), 50)
-  return c.json(await quizRanking(c.env.DB, quiz.id, limit, c.req.query('attempt') || undefined))
+  const score = susScore(body.answers)
+  const result = await c.env.DB.prepare(
+    `INSERT OR IGNORE INTO sus_responses (id, quiz_id, q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, score)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).bind(body.id, quiz.id, ...body.answers, score).run()
+  if (!result.meta.changes) return fail(c, 409, 'susAlreadySent')
+  return c.json({ score }, 201)
 })

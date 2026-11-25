@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { Download, MessageSquareQuote } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { api, type SusGrade, type SusSummary } from '@/lib/api'
-import { formatDateTime } from '@/lib/format'
 import { Button } from './ui/button'
-import { Badge } from './ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Skeleton } from './ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -69,9 +67,9 @@ export default function SusPanel({ quizId, title, description }: { quizId?: numb
                 { label: t('sus.median'), value: one(data.median) },
                 { label: t('sus.grade'), value: data.grade ? t(GRADE_KEY[data.grade]) : '—' },
               ].map((tile) => (
-                <div key={tile.label} className="rounded-xl border p-3">
+                <div key={tile.label} className="min-w-0 rounded-xl border p-3">
                   <dt className="text-xs text-muted-foreground">{tile.label}</dt>
-                  <dd className="text-xl font-semibold tabular-nums">{tile.value}</dd>
+                  <dd className="break-words text-xl font-semibold tabular-nums">{tile.value}</dd>
                 </div>
               ))}
             </dl>
@@ -164,31 +162,7 @@ export default function SusPanel({ quizId, title, description }: { quizId?: numb
               </section>
             </div>
 
-            <section className="space-y-3">
-              <h3 className="flex items-center gap-2 text-sm font-medium">
-                <MessageSquareQuote className="size-4 text-primary" aria-hidden /> {t('sus.comments')}
-              </h3>
-              {data.comments.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t('sus.noComments')}</p>
-              ) : (
-                <ul className="space-y-2">
-                  {data.comments.map((c, i) => (
-                    <li key={i} className="rounded-xl border p-3 text-sm">
-                      <p className="text-pretty">“{c.comment}”</p>
-                      <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                        <span>{c.playerName}</span>·<span>{c.quizTitle}</span>·<span>{formatDateTime(c.createdAt)}</span>
-                        <Badge variant="outline" className="font-normal uppercase">
-                          {c.locale}
-                        </Badge>
-                        <Badge variant="secondary" className="font-normal tabular-nums">
-                          SUS {c.score.toFixed(0)}
-                        </Badge>
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+
           </>
         )}
       </CardContent>

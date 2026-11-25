@@ -36,14 +36,16 @@ export type QuizMeta = {
   coverImage: string | null
   videoUrl: string | null
   license: string
+  licenseUrl: string
+  authors: string[]
+  attribution: Attribution[]
+  changes: string
   published: boolean
   createdAt: string
   updatedAt: string
   questionCount?: number
   concepts?: string[]
-  attemptCount?: number
   locales?: string[]
-  avgPct?: number | null
 }
 
 export type PublicQuestion = {
@@ -55,6 +57,8 @@ export type PublicQuestion = {
   imageAlt: string | null
   code: string | null
   options: string[]
+  correctIndex: number
+  explanation: string
 }
 
 export type Locale = 'pt' | 'en' | 'es' | 'fr'
@@ -72,7 +76,7 @@ export type QuestionTranslation = {
 }
 export type Translations<T> = Partial<Record<TranslatableLocale, T>>
 
-export type OwnerQuestion = PublicQuestion & { correctIndex: number; explanation: string; translations: Translations<QuestionTranslation> }
+export type OwnerQuestion = PublicQuestion & { translations: Translations<QuestionTranslation> }
 
 export type PublicQuiz = QuizMeta & { questions: PublicQuestion[] }
 export type OwnerQuiz = QuizMeta & { questions: OwnerQuestion[]; translations: Translations<QuizTranslation> }
@@ -80,12 +84,17 @@ export type OwnerQuiz = QuizMeta & { questions: OwnerQuestion[]; translations: T
 export type AnswerResult = { correct: boolean; correctIndex: number; explanation: string }
 export type FinishResult = { score: number; total: number; seconds: number; byConcept: { concept: string; total: number; correct: number }[] }
 export type PublicConfig = {
-  allowedEmailDomains: string[]
-  consentVersion: string
   locales: Locale[]
+  licenses: Record<string, string>
+}
+
+export type Attribution = {
+  title: string
   authors: string[]
-  repository: string
+  source: string
+  license: string
   licenseUrl: string
+  changes: string
 }
 
 type ExportQuestionText = {
@@ -107,6 +116,8 @@ export type QuizExport = ExportQuizText & {
   licenseUrl: string
   source: string
   repository: string
+  attribution: Attribution[]
+  changes: string
   slug: string
   translations: Translations<ExportQuizText>
   questions: (ExportQuestionText & { correctIndex: number; translations: Translations<ExportQuestionText> })[]
@@ -122,6 +133,9 @@ export type QuizInput = {
   coverImage: string | null
   videoUrl: string | null
   license: string
+  authors: string[]
+  attribution: Attribution[]
+  changes: string
   published: boolean
   questions: {
     id?: number
@@ -138,54 +152,6 @@ export type QuizInput = {
   translations: Translations<QuizTranslation>
 }
 
-export type QuizStats = {
-  quiz: QuizMeta
-  summary: {
-    attempts: number
-    finished: number | null
-    avgPct: number | null
-    avgSeconds: number | null
-    uniqueIps: number
-    uniqueEmails: number
-  }
-  scoreDistribution: { score: number; total: number; count: number }[]
-  perQuestion: {
-    id: number
-    position: number
-    prompt: string
-    concept: string
-    correctIndex: number
-    answered: number
-    correct: number
-    accuracy: number | null
-    avgTimeMs: number | null
-    options: { text: string; count: number }[]
-  }[]
-  perConcept: { concept: string; answered: number; correct: number }[]
-  perDay: { day: string; attempts: number; avgPct: number | null }[]
-  byCountry: { country: string; attempts: number }[]
-  byLocale: { locale: string; attempts: number }[]
-  locations: { lat: number; lon: number; city: string | null; region: string | null; country: string | null; attempts: number }[]
-}
-
-export type AttemptRow = {
-  id: string
-  playerName: string
-  playerEmail: string | null
-  ip: string | null
-  country: string | null
-  region: string | null
-  city: string | null
-  userAgent: string | null
-  startedAt: string
-  finishedAt: string | null
-  score: number
-  total: number
-  consentAt: string | null
-  consentVersion: string | null
-  locale: string
-}
-
 export type SusGrade = 'excellent' | 'good' | 'ok' | 'poor' | 'awful'
 export type SusSummary = {
   responses: number
@@ -194,30 +160,36 @@ export type SusSummary = {
   grade: SusGrade | null
   distribution: { grade: SusGrade; count: number }[]
   items: { item: number; mean: number | null }[]
-  comments: { comment: string; score: number; locale: string; createdAt: string; playerName: string; quizTitle: string }[]
 }
 
-export type RankingEntry = { position: number; name: string; score: number; total: number; seconds: number }
-export type Ranking = { entries: RankingEntry[]; players: number; me: (RankingEntry & { isThisAttempt: boolean }) | null }
+export function localizeQuizExport(data: QuizExport, locale: string) {
+  const tr = locale === 'pt' ? undefined : data.translations[locale as TranslatableLocale]
+  return {
+    title: tr?.title || data.title,
+    description: tr?.description || data.description || '',
+    audience: tr?.audience || data.audience || '',
+    objective: tr?.objective || data.objective || '',
+    questions: data.questions.map((q) => {
+      const qt = locale === 'pt' ? undefined : q.translations[locale as TranslatableLocale]
+      return {
+        ...q,
+        ...qt,
+        imageUrl: qt?.imageUrl || q.imageUrl,
+        imageAlt: qt?.imageAlt || q.imageAlt,
+        code: qt?.code || q.code,
+        correctIndex: q.correctIndex,
+      }
+    }),
+  }
+}
 
 export const api = {
   config: () => request<PublicConfig>('/config'),
   listQuizzes: () => request<QuizMeta[]>('/quizzes'),
   getQuiz: (slug: string) => request<PublicQuiz>(`/quizzes/${encodeURIComponent(slug)}`),
-  startAttempt: (slug: string, body: { playerName: string; playerEmail: string; consent: boolean; consentVersion: string }) =>
-    post<{ attemptId: string }>(`/quizzes/${encodeURIComponent(slug)}/attempts`, body),
-  answer: (attemptId: string, body: { questionId: number; selectedIndex: number; timeMs: number }) =>
-    post<AnswerResult>(`/attempts/${attemptId}/answers`, body),
-  finish: (attemptId: string) => post<FinishResult>(`/attempts/${attemptId}/finish`),
-  sendSus: (attemptId: string, body: { answers: number[]; comment?: string }) => post<{ score: number }>(`/attempts/${attemptId}/sus`, body),
+  sendSus: (slug: string, body: { id: string; answers: number[] }) => post<{ score: number }>(`/quizzes/${encodeURIComponent(slug)}/sus`, body),
   quizExport: (slug: string) => request<QuizExport>(`/quizzes/${encodeURIComponent(slug)}/export.json`),
   exportUrl: (slug: string) => `/api/quizzes/${encodeURIComponent(slug)}/export.json`,
-  ranking: (slug: string, opts: { limit?: number; attempt?: string } = {}) => {
-    const q = new URLSearchParams()
-    if (opts.limit) q.set('limit', String(opts.limit))
-    if (opts.attempt) q.set('attempt', opts.attempt)
-    return request<Ranking>(`/quizzes/${encodeURIComponent(slug)}/ranking?${q}`)
-  },
 
   devLogin: () => request<{ email: string; password: string } | null>('/auth/dev-login'),
   me: () => request<Owner>('/auth/me'),
@@ -233,10 +205,6 @@ export const api = {
     updateQuiz: (id: number, input: QuizInput) =>
       request<{ id: number }>(`/admin/quizzes/${id}`, { method: 'PUT', body: JSON.stringify(input) }),
     deleteQuiz: (id: number) => request<{ ok: true }>(`/admin/quizzes/${id}`, { method: 'DELETE' }),
-    stats: (id: number) => request<QuizStats>(`/admin/quizzes/${id}/stats`),
-    attempts: (id: number) => request<AttemptRow[]>(`/admin/quizzes/${id}/attempts?limit=500`),
-    deleteAttempt: (attemptId: string) => request<{ ok: true }>(`/admin/attempts/${attemptId}`, { method: 'DELETE' }),
-    csvUrl: (id: number) => `/api/admin/quizzes/${id}/attempts.csv?lang=${i18n.language}`,
     sus: (quizId?: number) => request<SusSummary>(`/admin/sus${quizId ? `?quiz=${quizId}` : ''}`),
     susCsvUrl: (quizId?: number) => `/api/admin/sus/export.csv?lang=${i18n.language}${quizId ? `&quiz=${quizId}` : ''}`,
   },

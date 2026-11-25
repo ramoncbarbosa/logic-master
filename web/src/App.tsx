@@ -5,7 +5,6 @@ import RequireOwner from './components/RequireOwner'
 import Home from './pages/Home'
 import QuizPlay from './pages/QuizPlay'
 import Privacy from './pages/Privacy'
-import Ranking from './pages/Ranking'
 import NotFound from './pages/NotFound'
 import Login from './pages/admin/Login'
 import { Skeleton } from './components/ui/skeleton'
@@ -21,7 +20,6 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="quiz/:slug" element={<QuizPlay />} />
-        <Route path="quiz/:slug/ranking" element={<Ranking />} />
         <Route
           path="quiz/:slug/imprimir"
           element={

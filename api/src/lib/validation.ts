@@ -1,5 +1,5 @@
-import { DEFAULT_LICENSE } from '../config'
-import type { QuestionInput, QuestionTranslationInput, QuizInput, QuizTranslationInput, Translations } from '../types'
+import { CONTENT_LICENSES, DEFAULT_LICENSE } from '../config'
+import type { Attribution, QuestionInput, QuestionTranslationInput, QuizInput, QuizTranslationInput, Translations } from '../types'
 import { TRANSLATABLE_LOCALES, type MessageKey, type Params } from './i18n'
 
 export class ValidationError extends Error {
@@ -45,6 +45,58 @@ const invalidUrl = (field: Field): never => {
 
 const record = (v: unknown) => (v && typeof v === 'object' ? (v as Record<string, unknown>) : {})
 
+const imageUrl = (v: unknown, field: Field) => {
+  if (typeof v === 'string' && v.startsWith('data:')) {
+    if (v.length > 350000 || !/^data:image\/(?:svg\+xml|png|jpeg|gif|webp|avif);base64,[A-Za-z0-9+/]+={0,2}$/.test(v))
+      throw new ValidationError('fieldInvalid', {}, field.key, field.params)
+    try {
+      atob(v.slice(v.indexOf(',') + 1))
+    } catch {
+      throw new ValidationError('fieldInvalid', {}, field.key, field.params)
+    }
+    return v
+  }
+  return url(v, field)
+}
+
+const authors = (v: unknown): string[] => {
+  if (!Array.isArray(v) || !v.length || v.length > 20) throw new ValidationError('authorsRequired')
+  return [...new Set(v.map((name) => str(name, { key: 'field.authors' }, { required: true, max: 150 })!))]
+}
+
+export function parseAttribution(raw: unknown): Attribution {
+  const a = record(raw)
+  const source = str(a.source, { key: 'field.attribution' }, { required: true, max: 500 })!
+  try {
+    const parsed = new URL(source)
+    if (parsed.protocol !== 'https:' && !(parsed.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname)))
+      throw new Error()
+    if (parsed.username || parsed.password) throw new Error()
+  } catch {
+    throw new ValidationError('fieldInvalid', {}, 'field.attribution')
+  }
+  const license = str(a.license, { key: 'field.license' }, { required: true, max: 60 })!
+  if (!Object.hasOwn(CONTENT_LICENSES, license) || (a.licenseUrl && a.licenseUrl !== CONTENT_LICENSES[license]))
+    throw new ValidationError('licenseInvalid')
+  return {
+    title: str(a.title, { key: 'field.title' }, { required: true, max: 150 })!,
+    authors: authors(a.authors),
+    source,
+    license,
+    licenseUrl: CONTENT_LICENSES[license],
+    changes: str(a.changes, { key: 'field.changes' }, { max: 1000 }) ?? '',
+  }
+}
+
+export function validateAttributionLicense(input: QuizInput) {
+  for (const a of input.attribution) {
+    if ((a.license.includes('-SA') && a.license !== input.license) ||
+      (a.license.includes('-NC') && !input.license?.includes('-NC')) ||
+      (a.license !== 'CC0 1.0' && input.license === 'CC0 1.0'))
+      throw new ValidationError('licenseIncompatible')
+  }
+}
+
 function parseQuizTranslations(raw: unknown): Translations<QuizTranslationInput> {
   const all = record(raw)
   const out: Translations<QuizTranslationInput> = {}
@@ -74,14 +126,15 @@ function parseQuestionTranslations(raw: unknown, n: number, optionCount: number)
     const options = Array.isArray(tr.options) ? tr.options.map((o) => (typeof o === 'string' ? o.trim() : '')) : []
     if (options.length !== optionCount || options.some((o) => !o || o.length > 500))
       throw new ValidationError('translationOptions', { locale: locale.toUpperCase(), n, count: optionCount })
-    const imageUrl = url(tr.imageUrl, { key: 'field.image', params: { n } })
+    const translatedImage = imageUrl(tr.imageUrl, { key: 'field.image', params: { n } })
     const imageAlt = str(tr.imageAlt, { key: 'field.imageAlt', params: { n } }, { max: 300 }) ?? null
+    if (translatedImage && !imageAlt) throw new ValidationError('imageAltRequired')
     out[locale] = {
       prompt,
       concept: str(tr.concept, { key: 'field.concept', params: { n } }, { max: 80 }) ?? '',
       options,
       explanation: str(tr.explanation, { key: 'field.explanation', params: { n } }, { max: 2000 }) ?? '',
-      imageUrl,
+      imageUrl: translatedImage,
       imageAlt,
       code: str(tr.code, { key: 'field.code', params: { n } }, { max: 4000 }) ?? null,
     }
@@ -109,14 +162,14 @@ export function parseQuizInput(body: unknown): QuizInput {
     if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex >= options.length)
       throw new ValidationError('markCorrect', { n })
     const id = q.id == null ? undefined : Number(q.id)
-    const imageUrl = url(q.imageUrl, { key: 'field.image', params: { n } })
+    const questionImage = imageUrl(q.imageUrl, { key: 'field.image', params: { n } })
     const imageAlt = str(q.imageAlt, { key: 'field.imageAlt', params: { n } }, { max: 300 }) ?? null
-    if (imageUrl && !imageAlt) throw new ValidationError('imageAltRequired')
+    if (questionImage && !imageAlt) throw new ValidationError('imageAltRequired')
     return {
       id: id && Number.isInteger(id) ? id : undefined,
       prompt: str(q.prompt, { key: 'field.prompt', params: { n } }, { required: true, max: 2000 })!,
       concept: str(q.concept, { key: 'field.concept', params: { n } }, { max: 80 }) ?? '',
-      imageUrl,
+      imageUrl: questionImage,
       imageAlt,
       code: str(q.code, { key: 'field.code', params: { n } }, { max: 4000 }) ?? null,
       options,
@@ -126,17 +179,27 @@ export function parseQuizInput(body: unknown): QuizInput {
     }
   })
 
-  return {
+  const license = str(b.license, { key: 'field.license' }, { max: 60 }) ?? DEFAULT_LICENSE
+  if (!Object.hasOwn(CONTENT_LICENSES, license) || (b.licenseUrl && b.licenseUrl !== CONTENT_LICENSES[license]))
+    throw new ValidationError('licenseInvalid')
+  if (b.attribution !== undefined && (!Array.isArray(b.attribution) || b.attribution.length > 30))
+    throw new ValidationError('fieldInvalid', {}, 'field.attribution')
+  const input: QuizInput = {
     slug,
     title: str(b.title, { key: 'field.title' }, { required: true, max: 150 })!,
     description: str(b.description, { key: 'field.description' }, { max: 2000 }) ?? '',
     audience: str(b.audience, { key: 'field.audience' }, { max: 300 }) ?? '',
     objective: str(b.objective, { key: 'field.objective' }, { max: 1000 }) ?? '',
-    coverImage: url(b.coverImage, { key: 'field.cover' }),
+    coverImage: imageUrl(b.coverImage, { key: 'field.cover' }),
     videoUrl: url(b.videoUrl, { key: 'field.video' }),
-    license: str(b.license, { key: 'field.license' }, { max: 60 }) ?? DEFAULT_LICENSE,
+    license,
+    authors: authors(b.authors),
+    attribution: (b.attribution as unknown[] | undefined ?? []).map(parseAttribution),
+    changes: str(b.changes, { key: 'field.changes' }, { max: 1000 }) ?? '',
     published: b.published === true,
     questions,
     translations: parseQuizTranslations(b.translations),
   }
+  validateAttributionLicense(input)
+  return input
 }

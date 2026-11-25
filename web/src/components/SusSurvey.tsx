@@ -5,18 +5,16 @@ import { HeartHandshake, Send } from 'lucide-react'
 import { api } from '@/lib/api'
 import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card'
-import { Textarea } from './ui/textarea'
-import { Label } from './ui/label'
 import { Alert, AlertDescription } from './ui/alert'
 import { cn } from '@/lib/utils'
 
 const ITEMS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const
 const SCALE = [1, 2, 3, 4, 5] as const
 
-export default function SusSurvey({ attemptId }: { attemptId: string }) {
+export default function SusSurvey({ quizSlug }: { quizSlug: string }) {
   const { t } = useTranslation()
   const [answers, setAnswers] = useState<(number | null)[]>(() => ITEMS.map(() => null))
-  const [comment, setComment] = useState('')
+  const [responseId] = useState(() => crypto.randomUUID())
   const [status, setStatus] = useState<'idle' | 'sending' | 'done'>('idle')
   const [error, setError] = useState<string | null>(null)
   const done = answers.filter((a) => a !== null).length
@@ -27,7 +25,7 @@ export default function SusSurvey({ attemptId }: { attemptId: string }) {
     if (done < ITEMS.length) return setError(t('sus.incomplete'))
     setStatus('sending')
     try {
-      await api.sendSus(attemptId, { answers: answers as number[], comment: comment.trim() || undefined })
+      await api.sendSus(quizSlug, { id: responseId, answers: answers as number[] })
       setStatus('done')
     } catch (e) {
       setError((e as Error).message)
@@ -89,16 +87,6 @@ export default function SusSurvey({ attemptId }: { attemptId: string }) {
                   </div>
                 </fieldset>
               ))}
-              <div className="space-y-2 pt-2">
-                <Label htmlFor="sus-comment">{t('sus.comment')}</Label>
-                <Textarea
-                  id="sus-comment"
-                  maxLength={1000}
-                  placeholder={t('sus.commentPlaceholder')}
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                />
-              </div>
               {error && (
                 <Alert variant="destructive" role="alert">
                   <AlertDescription>{error}</AlertDescription>

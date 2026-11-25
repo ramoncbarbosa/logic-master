@@ -13,9 +13,6 @@ const steps = (name: TourName): DriveStep[] => {
     return [
       { popover: { title: t('tour.welcomeTitle'), description: t('tour.welcomeText') } },
       { element: '#tour-summary', popover: { title: t('tour.summaryTitle'), description: t('tour.summaryText'), side: 'bottom' } },
-      { element: '#tour-name', popover: { title: t('tour.nameTitle'), description: t('tour.nameText'), side: 'top' } },
-      { element: '#tour-email', popover: { title: t('tour.emailTitle'), description: t('tour.emailText'), side: 'top' } },
-      { element: '#tour-consent', popover: { title: t('tour.consentTitle'), description: t('tour.consentText'), side: 'top' } },
       { element: '#tour-start', popover: { title: t('tour.startTitle'), description: t('tour.startText'), side: 'top' } },
     ]
   return [

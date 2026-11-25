@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, Printer } from 'lucide-react'
-import { api, ApiError, type PublicQuiz, type QuizExport, type TranslatableLocale } from '@/lib/api'
+import { api, ApiError, localizeQuizExport, type PublicQuiz, type QuizExport } from '@/lib/api'
 import { languageTag } from '@/i18n'
 import { learningResource, useJsonLd } from '@/lib/citation'
 import { useDocumentTitle } from '@/lib/use-document-title'
@@ -14,22 +14,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import QuizCitation from '@/components/QuizCitation'
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
-
-function localize(data: QuizExport, locale: string) {
-  const tr = locale === 'pt' ? undefined : data.translations[locale as TranslatableLocale]
-  const pick = (v: string | undefined, base: string | undefined) => (v ? v : (base ?? ''))
-  return {
-    title: pick(tr?.title, data.title),
-    description: pick(tr?.description, data.description),
-    audience: pick(tr?.audience, data.audience),
-    objective: pick(tr?.objective, data.objective),
-    questions: data.questions.map((q) => {
-      const qt = locale === 'pt' ? undefined : q.translations[locale as TranslatableLocale]
-      const text = qt ?? q
-      return { ...text, correctIndex: q.correctIndex }
-    }),
-  }
-}
 
 export default function QuizPrint() {
   const { slug = '' } = useParams()
@@ -49,7 +33,7 @@ export default function QuizPrint() {
       .catch((e) => setError(e instanceof ApiError ? e.message : t('common.connectionError')))
   }, [slug, i18n.language, t])
 
-  const quiz = useMemo(() => (data ? localize(data, i18n.language) : null), [data, i18n.language])
+  const quiz = useMemo(() => (data ? localizeQuizExport(data, i18n.language) : null), [data, i18n.language])
   useDocumentTitle(quiz ? t('print.docTitle', { title: quiz.title }) : null)
 
   const pageUrl = `${window.location.origin}/quiz/${slug}`
@@ -172,6 +156,8 @@ export default function QuizPrint() {
         authors={data.authors}
         license={data.license}
         licenseUrl={data.licenseUrl}
+        attribution={data.attribution}
+        changes={data.changes}
         url={pageUrl}
         className="break-inside-avoid print:border-black print:shadow-none"
       />

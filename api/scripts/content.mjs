@@ -22,8 +22,8 @@ const bySlug = (slug) => `FROM quizzes WHERE slug = ${q(slug)}`
 function quizSql(d) {
   if (d.format !== 'logic-master-quiz') throw new Error(`Formato desconhecido em ${d.slug ?? '?'}`)
   const out = [
-    `INSERT INTO quizzes (owner_id, slug, title, description, audience, objective, cover_image, video_url, license, published)
-VALUES ((SELECT id FROM owners ORDER BY id LIMIT 1), ${[d.slug, d.title, d.description ?? '', d.audience ?? '', d.objective ?? '', d.coverImage, d.videoUrl, d.license ?? 'CC BY-NC-SA 4.0'].map(q).join(', ')}, 1);`,
+    `INSERT INTO quizzes (owner_id, slug, title, description, audience, objective, cover_image, video_url, license, authors, attribution, changes, published)
+VALUES ((SELECT id FROM owners ORDER BY id LIMIT 1), ${[d.slug, d.title, d.description ?? '', d.audience ?? '', d.objective ?? '', d.coverImage, d.videoUrl, d.license ?? 'CC BY-NC-SA 4.0', JSON.stringify(d.authors ?? []), JSON.stringify(d.attribution ?? []), d.changes ?? ''].map(q).join(', ')}, 1);`,
   ]
   for (const [locale, t] of Object.entries(d.translations ?? {}))
     out.push(

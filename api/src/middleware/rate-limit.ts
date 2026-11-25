@@ -3,7 +3,7 @@ import { fail } from '../lib/i18n'
 import { clientIp } from '../lib/visitor'
 import type { AppEnv } from '../types'
 
-type LimiterName = 'RL_GLOBAL' | 'RL_AUTH' | 'RL_ATTEMPT'
+type LimiterName = 'RL_GLOBAL' | 'RL_AUTH' | 'RL_SUS'
 
 export const rateLimit = (name: LimiterName, scope: string) =>
   createMiddleware<AppEnv>(async (c, next) => {
